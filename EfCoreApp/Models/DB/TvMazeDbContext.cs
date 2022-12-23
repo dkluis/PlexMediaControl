@@ -1,49 +1,55 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EfCoreApp.Models.DB;
-
-public partial class TvMazeDbContext : DbContext
+namespace EfCoreApp.Models.DB
 {
-    public TvMazeDbContext()
+    public partial class TvMazeDbContext : DbContext
     {
-    }
-
-    public TvMazeDbContext(DbContextOptions<TvMazeDbContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<ActionItem> ActionItems { get; set; } = null!;
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-            optionsBuilder.UseSqlServer(
-                "Server=tcp:192.168.142.152,1433;Database=TvMazeDb;User ID=sa;Password=Sandy3942");
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ActionItem>(entity =>
+        public TvMazeDbContext()
         {
-            entity.HasIndex(e => new {e.Program, e.Message, e.UpdateDateTime}, "ActionItems_UN")
-                .IsUnique();
+        }
 
-            entity.Property(e => e.Message)
-                .HasMaxLength(500)
-                .IsUnicode(false);
+        public TvMazeDbContext(DbContextOptions<TvMazeDbContext> options)
+            : base(options)
+        {
+        }
 
-            entity.Property(e => e.Program)
-                .HasMaxLength(25)
-                .IsUnicode(false);
+        public virtual DbSet<ActionItem> ActionItems { get; set; } = null!;
 
-            entity.Property(e => e.UpdateDateTime)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=tcp:192.168.142.152,1433;Database=TvMazeDb;User ID=sa;Password=Sandy3942");
+            }
+        }
 
-        OnModelCreatingPartial(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ActionItem>(entity =>
+            {
+                entity.HasIndex(e => new { e.Program, e.Message, e.UpdateDateTime }, "ActionItems_UN")
+                    .IsUnique();
+
+                entity.Property(e => e.Message)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Program)
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UpdateDateTime)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

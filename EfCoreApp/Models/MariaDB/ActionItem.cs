@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EfCoreApp.Models.DB
+namespace EfCoreApp.Models.MariaDB
 {
     public partial class ActionItem
     {
