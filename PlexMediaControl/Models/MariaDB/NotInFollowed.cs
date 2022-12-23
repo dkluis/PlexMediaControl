@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EfCoreApp.Models.MariaDB
 {
-    public partial class Notinfollowed
+    public partial class NotInFollowed
     {
         public int ShowsTvmShowId { get; set; }
         public string ShowName { get; set; } = null!;

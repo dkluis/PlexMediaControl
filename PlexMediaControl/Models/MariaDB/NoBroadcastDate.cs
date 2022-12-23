@@ -3,12 +3,10 @@ using System.Collections.Generic;
 
 namespace EfCoreApp.Models.MariaDB
 {
-    public partial class Episodestoacquire
+    public partial class NoBroadcastDate
     {
+        public int Id { get; set; }
         public int TvmShowId { get; set; }
-        public string ShowName { get; set; } = null!;
-        public string CleanedShowName { get; set; } = null!;
-        public string AltShowName { get; set; } = null!;
         public int TvmEpisodeId { get; set; }
         public string TvmUrl { get; set; } = null!;
         public string SeasonEpisode { get; set; } = null!;
@@ -17,6 +15,6 @@ namespace EfCoreApp.Models.MariaDB
         public DateOnly? BroadcastDate { get; set; }
         public string PlexStatus { get; set; } = null!;
         public DateOnly? PlexDate { get; set; }
-        public string Finder { get; set; } = null!;
+        public DateOnly UpdateDate { get; set; }
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace EfCoreApp.Models.MariaDB
 {
-    public partial class Notinshow
+    public partial class OrphanedEpisode
     {
-        public int FollowedTvmShowId { get; set; }
+        public int TvmShowId { get; set; }
     }
 }

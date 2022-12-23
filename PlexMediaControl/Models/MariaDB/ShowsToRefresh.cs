@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EfCoreApp.Models.MariaDB
 {
-    public partial class Showstorefresh
+    public partial class ShowsToRefresh
     {
         public int TvmShowId { get; set; }
         public string TvmStatus { get; set; } = null!;
