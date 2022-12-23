@@ -4,9 +4,9 @@ Console.WriteLine("Hello, Entity Framework World!");
 
 var db = new TvMazeNewDbContext();
 
-var result = db.ActionItems.OrderByDescending(ai => ai.UpdateDateTime).ToArray();
+var result = db.Shows.OrderByDescending(ai => ai.Id).ToArray();
 
-foreach (var item in result) Console.WriteLine($"{item.Id}: {item.Program}: {item.Message}: {item.UpdateDateTime}");
+foreach (var item in result) Console.WriteLine($"{item.TvmShowId}: {item.ShowName}: {item.Episodes.Count}: {item.ShowStatus}: {item.UpdateDate}");
 
 Console.WriteLine("Sql Server Db Done");
 //
