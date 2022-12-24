@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EfCoreApp.Models.MariaDB
+namespace PlexMediaControl.Models.MariaDB
 {
-    public partial class NotInFollowed
+    public partial class Notinfollowed
     {
         public int ShowsTvmShowId { get; set; }
         public string ShowName { get; set; } = null!;

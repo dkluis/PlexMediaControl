@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EfCoreApp.Models.MariaDB
+namespace PlexMediaControl.Models.MariaDB
 {
-    public partial class ShowsToRefresh
+    public partial class Showstorefresh
     {
         public int TvmShowId { get; set; }
         public string TvmStatus { get; set; } = null!;

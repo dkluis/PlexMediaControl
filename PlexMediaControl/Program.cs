@@ -1,4 +1,4 @@
-﻿using EfCoreApp.Models.MariaDB;
+﻿using PlexMediaControl.Models.MariaDB;
 
 Console.WriteLine("Hello, Entity Framework World!");
 
@@ -54,5 +54,6 @@ Console.WriteLine($"Db has {totalRecords} records");
 // PM>>> Scaffold-DbContext "Server=tcp:192.168.142.152,1433;Database=TvMazeDb;User ID=sa;Password=Sandy3942" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/DB -f
 //
 
-//PM >> Scaffold - DbContext "Server=ca-server.local;port=3306;Database=TvMazeNewDb;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql - OutputDir Models / MariaDB - f
+// dotnet ef dbContext scaffold "Server=ca-server.local;port=3306;Database=TvMazeNewDb;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql -o Models/MariaDB -f
+
 

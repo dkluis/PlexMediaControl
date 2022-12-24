@@ -6,3 +6,5 @@
 EfCoreApp/bin/
 
 EfCoreApp/obj/
+
+.DS_Store

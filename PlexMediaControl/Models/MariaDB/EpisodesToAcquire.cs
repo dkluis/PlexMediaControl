@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EfCoreApp.Models.MariaDB
+namespace PlexMediaControl.Models.MariaDB
 {
-    public partial class EpisodesToAcquire
+    public partial class Episodestoacquire
     {
         public int TvmShowId { get; set; }
         public string ShowName { get; set; } = null!;

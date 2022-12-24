@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EfCoreApp.Models.MariaDB
+namespace PlexMediaControl.Models.MariaDB
 {
     public partial class TvMazeNewDbContext : DbContext
     {
@@ -18,24 +18,24 @@ namespace EfCoreApp.Models.MariaDB
 
         public virtual DbSet<ActionItem> ActionItems { get; set; } = null!;
         public virtual DbSet<Episode> Episodes { get; set; } = null!;
-        public virtual DbSet<EpisodesFromTodayBack> Episodesfromtodaybacks { get; set; } = null!;
-        public virtual DbSet<EpisodesFullInfo> Episodesfullinfos { get; set; } = null!;
-        public virtual DbSet<EpisodesToAcquire> Episodestoacquires { get; set; } = null!;
+        public virtual DbSet<Episodesfromtodayback> Episodesfromtodaybacks { get; set; } = null!;
+        public virtual DbSet<Episodesfullinfo> Episodesfullinfos { get; set; } = null!;
+        public virtual DbSet<Episodestoacquire> Episodestoacquires { get; set; } = null!;
         public virtual DbSet<Followed> Followeds { get; set; } = null!;
         public virtual DbSet<LastShowEvaluated> LastShowEvaluateds { get; set; } = null!;
         public virtual DbSet<MediaType> MediaTypes { get; set; } = null!;
         public virtual DbSet<Movie> Movies { get; set; } = null!;
-        public virtual DbSet<NoBroadcastDate> Nobroadcastdates { get; set; } = null!;
-        public virtual DbSet<NotInFollowed> Notinfolloweds { get; set; } = null!;
-        public virtual DbSet<NotInShow> Notinshows { get; set; } = null!;
-        public virtual DbSet<OrphanedEpisode> Orphanedepisodes { get; set; } = null!;
+        public virtual DbSet<Nobroadcastdate> Nobroadcastdates { get; set; } = null!;
+        public virtual DbSet<Notinfollowed> Notinfolloweds { get; set; } = null!;
+        public virtual DbSet<Notinshow> Notinshows { get; set; } = null!;
+        public virtual DbSet<Orphanedepisode> Orphanedepisodes { get; set; } = null!;
         public virtual DbSet<PlexStatus> PlexStatuses { get; set; } = null!;
         public virtual DbSet<PlexWatchedEpisode> PlexWatchedEpisodes { get; set; } = null!;
         public virtual DbSet<Show> Shows { get; set; } = null!;
         public virtual DbSet<ShowRssFeed> ShowRssFeeds { get; set; } = null!;
         public virtual DbSet<ShowStatus> ShowStatuses { get; set; } = null!;
-        public virtual DbSet<ShowsNotInFollowed> Showsnotinfolloweds { get; set; } = null!;
-        public virtual DbSet<ShowsToRefresh> Showstorefreshes { get; set; } = null!;
+        public virtual DbSet<Showsnotinfollowed> Showsnotinfolloweds { get; set; } = null!;
+        public virtual DbSet<Showstorefresh> Showstorefreshes { get; set; } = null!;
         public virtual DbSet<TvmShowUpdate> TvmShowUpdates { get; set; } = null!;
         public virtual DbSet<TvmStatus> TvmStatuses { get; set; } = null!;
 
@@ -113,7 +113,7 @@ namespace EfCoreApp.Models.MariaDB
                     .HasConstraintName("Episodes_FK");
             });
 
-            modelBuilder.Entity<EpisodesFromTodayBack>(entity =>
+            modelBuilder.Entity<Episodesfromtodayback>(entity =>
             {
                 entity.HasNoKey();
 
@@ -154,7 +154,7 @@ namespace EfCoreApp.Models.MariaDB
                 entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
             });
 
-            modelBuilder.Entity<EpisodesFullInfo>(entity =>
+            modelBuilder.Entity<Episodesfullinfo>(entity =>
             {
                 entity.HasNoKey();
 
@@ -205,7 +205,7 @@ namespace EfCoreApp.Models.MariaDB
                 entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
             });
 
-            modelBuilder.Entity<EpisodesToAcquire>(entity =>
+            modelBuilder.Entity<Episodestoacquire>(entity =>
             {
                 entity.HasNoKey();
 
@@ -278,7 +278,8 @@ namespace EfCoreApp.Models.MariaDB
 
                 entity.Property(e => e.MediaType1)
                     .HasMaxLength(10)
-                    .HasColumnName("MediaType");
+                    .HasColumnName("MediaType")
+                    .HasDefaultValueSql("''");
 
                 entity.Property(e => e.PlexLocation).HasMaxLength(100);
             });
@@ -314,7 +315,7 @@ namespace EfCoreApp.Models.MariaDB
                     .HasConstraintName("Movies_FK");
             });
 
-            modelBuilder.Entity<NoBroadcastDate>(entity =>
+            modelBuilder.Entity<Nobroadcastdate>(entity =>
             {
                 entity.HasNoKey();
 
@@ -343,7 +344,7 @@ namespace EfCoreApp.Models.MariaDB
                 entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
             });
 
-            modelBuilder.Entity<NotInFollowed>(entity =>
+            modelBuilder.Entity<Notinfollowed>(entity =>
             {
                 entity.HasNoKey();
 
@@ -363,7 +364,7 @@ namespace EfCoreApp.Models.MariaDB
                     .HasDefaultValueSql("' '");
             });
 
-            modelBuilder.Entity<NotInShow>(entity =>
+            modelBuilder.Entity<Notinshow>(entity =>
             {
                 entity.HasNoKey();
 
@@ -372,7 +373,7 @@ namespace EfCoreApp.Models.MariaDB
                 entity.Property(e => e.FollowedTvmShowId).HasColumnType("int(11)");
             });
 
-            modelBuilder.Entity<OrphanedEpisode>(entity =>
+            modelBuilder.Entity<Orphanedepisode>(entity =>
             {
                 entity.HasNoKey();
 
@@ -515,7 +516,7 @@ namespace EfCoreApp.Models.MariaDB
                     .HasDefaultValueSql("' '");
             });
 
-            modelBuilder.Entity<ShowsNotInFollowed>(entity =>
+            modelBuilder.Entity<Showsnotinfollowed>(entity =>
             {
                 entity.HasNoKey();
 
@@ -554,7 +555,7 @@ namespace EfCoreApp.Models.MariaDB
                 entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
             });
 
-            modelBuilder.Entity<ShowsToRefresh>(entity =>
+            modelBuilder.Entity<Showstorefresh>(entity =>
             {
                 entity.HasNoKey();
 
