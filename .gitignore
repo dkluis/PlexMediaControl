@@ -8,3 +8,27 @@ EfCoreApp/bin/
 EfCoreApp/obj/
 
 .DS_Store
+
+Lib-EF/obj/
+
+Libraries/DB_Lib/bin/
+
+Libraries/DB_Lib/obj/
+
+Libraries/Entities_Lib/bin/
+
+Libraries/Entities_Lib/obj/
+
+Libraries/Lib-Common/bin/
+
+Libraries/Lib-Common/obj/
+
+Libraries/Web_Lib/bin/
+
+Libraries/Web_Lib/obj/
+
+Show-Initial-Load/obj/
+
+Lib-EF/bin/
+
+Show-Initial-Load/bin/

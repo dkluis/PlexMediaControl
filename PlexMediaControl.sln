@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EfCoreApp", "PlexMediaControl\PlexMediaControl.csproj", "{068E29FA-5D42-4585-9FE6-B13FC3121C4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib-EF", "Lib-EF\Lib-EF.csproj", "{068E29FA-5D42-4585-9FE6-B13FC3121C4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Show-Initial-Load", "Show-Initial-Load\Show-Initial-Load.csproj", "{68DF74E5-213B-45CB-844C-446547D3247E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib-Common", "Libraries\Lib-Common\Lib-Common.csproj", "{F81A3981-299E-4E9E-8E2D-396DB26EB3D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{068E29FA-5D42-4585-9FE6-B13FC3121C4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{068E29FA-5D42-4585-9FE6-B13FC3121C4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{068E29FA-5D42-4585-9FE6-B13FC3121C4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DF74E5-213B-45CB-844C-446547D3247E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DF74E5-213B-45CB-844C-446547D3247E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DF74E5-213B-45CB-844C-446547D3247E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DF74E5-213B-45CB-844C-446547D3247E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F81A3981-299E-4E9E-8E2D-396DB26EB3D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F81A3981-299E-4E9E-8E2D-396DB26EB3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F81A3981-299E-4E9E-8E2D-396DB26EB3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F81A3981-299E-4E9E-8E2D-396DB26EB3D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

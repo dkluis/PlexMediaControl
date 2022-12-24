@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ReleaseVersion>1.5</ReleaseVersion>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <LangVersion>11</LangVersion>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Common_Lib\Common_Lib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="HtmlAgilityPack" />
+    </ItemGroup>
+</Project>

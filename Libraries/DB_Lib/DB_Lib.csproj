@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ReleaseVersion>1.5</ReleaseVersion>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <LangVersion>11</LangVersion>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>MariaDB Access Lib - Specific To TVMaze</Title>
+        <Authors>Dick Kluis</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MySqlConnector" Version="2.2.4" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
+        <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Common_Lib\Common_Lib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Microsoft.Data.Sqlite.Core" />
+        <None Remove="System.Data.SQLite.Core" />
+        <None Remove="System.Data.SQLite" />
+    </ItemGroup>
+</Project>
