@@ -172,23 +172,19 @@ public class WebApi : IDisposable
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        //EpisodeMarking em = new(epi, date, type);
-        //var content = em.GetJson();
-        //_log.Write($"TVMaze Put Async with {epi} {date} {type} turned into {content}", "", 4);
+        ShowToFollowed stf = new(show);
+        var content = stf.GetJson();
+        _log.Write($"TVMaze Put Async with {show} turned into {content}", "", 4);
 
-        //var t = PerformPutTvmApiAsync(api, content);
-        //t.Wait();
+        var t = PerformPutTvmApiAsync(api, content);
+        t.Wait();
 
         stopwatch.Stop();
         _log.Write($"TVMApi Exec time: {stopwatch.ElapsedMilliseconds} ms.", "", 4);
 
-        if (!_httpResponse.IsSuccessStatusCode)
-        {
-            _log.Write($"Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Put Exec", 4);
-            _httpResponse = new HttpResponseMessage();
-            //Console.WriteLine("########### Aborting from PerformPutTvmApiAsync ###################");
-            //Environment.Exit(99);
-        }
+        if (_httpResponse.IsSuccessStatusCode) return;
+        _log.Write($"Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Put Exec", 4);
+        _httpResponse = new HttpResponseMessage();
     }
 
     private async Task PerformPutTvmApiAsync(string api, string json)
@@ -441,6 +437,21 @@ public class EpisodeMarking
                 type = 0;
                 break;
         }
+    }
+
+    public string GetJson()
+    {
+        return JsonConvert.SerializeObject(this);
+    }
+}
+
+public class ShowToFollowed
+{
+    private int show_id;
+
+    public ShowToFollowed(int showId)
+    {
+        show_id = showId;
     }
 
     public string GetJson()

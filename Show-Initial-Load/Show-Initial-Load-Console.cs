@@ -64,8 +64,6 @@ log.Write($"Counts are: All {allShows.Count} and Unique {uniqueShows.Count} ");
 log.Write($"{uniqueShows}");
 */
 
-
-
 #endregion
 
 
@@ -107,12 +105,14 @@ foreach (var show in addTheseShows)
     newShowRec.TvmUrl = showContent["url"]!.ToString();
     newShowRec.ShowName = showContent["name"]!.ToString();
     newShowRec.ShowStatus = showContent["status"]!.ToString();
-    newShowRec.Finder = "Multi";
+    newShowRec.Finder = "Skip";
     newShowRec.MediaType = "TS";
-    newShowRec.AltShowname = Common.RemoveSpecialCharsInShowName(newShowRec.ShowName);
+    newShowRec.CleanedShowName = Common.RemoveSuffixFromShowName(Common.RemoveSpecialCharsInShowName(newShowRec.ShowName));
     newShowRec.PremiereDate = DateOnly.Parse(showContent["premiered"]!.ToString());
+    newShowRec.UpdateDate = newShowRec.PremiereDate;
     
     // TvmShowUpdates
+    bool tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showId) != null;
     var newTvmShowUpdatesRec = new TvmShowUpdate()
     {
         TvmShowId = showId,
@@ -120,6 +120,14 @@ foreach (var show in addTheseShows)
         TvmUpdateDate = DateOnly.Parse(showContent["premiered"]!.ToString())
     };
     
+    // TVMaze 
+    using var tvmApiUpd = new WebApi(appInfo);
+    var updateResult = tvmApiUpd.PutShowToFollowed(showId);
+    if (updateResult == null || !updateResult.IsSuccessStatusCode)
+    {
+        log.Write($"Error Occured trying to update Tvmaze to followed for {showId} {newShowRec.ShowName} with error: {updateResult.StatusCode}");
+        continue;
+    }
     
     // Do all DB Updates in 1 transaction
     using var transaction = db.Database.BeginTransaction();
@@ -127,7 +135,7 @@ foreach (var show in addTheseShows)
     {
         db.Followeds.Add(newFollowRec);
         db.Shows.Add(newShowRec);
-        db.TvmShowUpdates.Add(newTvmShowUpdatesRec);
+        if (!tvmShowUpdateExist) db.TvmShowUpdates.Add(newTvmShowUpdatesRec);
 
         db.SaveChanges();
         transaction.Commit();
@@ -135,10 +143,8 @@ foreach (var show in addTheseShows)
     catch (Exception e)
     {
         transaction.Rollback();
-        log.Write($"Transaction Failed for ShowId {showId} with error {e.Message}");
+        log.Write($"Transaction Failed for ShowId {showId} with error {e.Message} {e.InnerException}");
     }
-
-    
 
 }
 
