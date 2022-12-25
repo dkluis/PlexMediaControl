@@ -166,6 +166,30 @@ public class WebApi : IDisposable
             //Environment.Exit(99);
         }
     }
+    
+    private void PerformWaitPutShowTvmApiAsync(string api, int show)
+    {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        //EpisodeMarking em = new(epi, date, type);
+        //var content = em.GetJson();
+        //_log.Write($"TVMaze Put Async with {epi} {date} {type} turned into {content}", "", 4);
+
+        //var t = PerformPutTvmApiAsync(api, content);
+        //t.Wait();
+
+        stopwatch.Stop();
+        _log.Write($"TVMApi Exec time: {stopwatch.ElapsedMilliseconds} ms.", "", 4);
+
+        if (!_httpResponse.IsSuccessStatusCode)
+        {
+            _log.Write($"Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Put Exec", 4);
+            _httpResponse = new HttpResponseMessage();
+            //Console.WriteLine("########### Aborting from PerformPutTvmApiAsync ###################");
+            //Environment.Exit(99);
+        }
+    }
 
     private async Task PerformPutTvmApiAsync(string api, string json)
     {
@@ -239,7 +263,7 @@ public class WebApi : IDisposable
         return _httpResponse;
     }
 
-    public HttpResponseMessage GetAllEpisodes()
+    public HttpResponseMessage GetAllMyEpisodes()
     {
         SetTvmazeUser();
         var api = $"episodes";
@@ -279,6 +303,15 @@ public class WebApi : IDisposable
         _log.Write($"API String = {TvmazeUserUrl}{api}", "WebAPI GFS", 4);
         if (_httpResponse.IsSuccessStatusCode) isFollowed = true;
         return isFollowed;
+    }
+    
+    public HttpResponseMessage PutShowToFollowed(int showid)
+    {
+        SetTvmazeUser();
+        var api = $"follows/shows/{showid}";
+        PerformWaitPutShowTvmApiAsync(api, showid);
+
+        return _httpResponse;
     }
 
     #endregion

@@ -1,7 +1,7 @@
 ﻿using PlexMediaControl.Models.MariaDB;
 using Common_Lib;
 
-var appInfo = new AppInfo("P.M.S", "EF-Console");
+var appInfo = new AppInfo("PlexMediaControl", "EF-Console");
 var log = appInfo.TxtFile;
 
 log.Start();

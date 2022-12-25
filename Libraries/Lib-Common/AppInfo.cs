@@ -6,7 +6,7 @@ namespace Common_Lib;
 public class AppInfo
 {
     public string ActiveDbConn { get; }
-    public string Application { get; }
+    private string Application { get; }
     private string ConfigFileName { get; }
     private string ConfigFullPath { get; }
     public string? ConfigPath { get; }
