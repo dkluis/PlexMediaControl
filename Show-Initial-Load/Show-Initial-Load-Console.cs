@@ -109,7 +109,7 @@ foreach (var show in addTheseShows)
     newShowRec.MediaType = "TS";
     newShowRec.CleanedShowName = Common.RemoveSuffixFromShowName(Common.RemoveSpecialCharsInShowName(newShowRec.ShowName));
     newShowRec.PremiereDate = DateOnly.Parse(showContent["premiered"]!.ToString());
-    newShowRec.UpdateDate = newShowRec.PremiereDate;
+    newShowRec.UpdateDate = DateOnly.Parse("01/01/2200");
     
     // TvmShowUpdates
     bool tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showId) != null;
