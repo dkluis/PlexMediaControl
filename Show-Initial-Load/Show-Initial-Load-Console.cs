@@ -66,9 +66,9 @@ log.Write($"{uniqueShows}");
 
 #endregion
 
-
 #region Process All shows to load
 
+/*
 var allShowsToAdd = Path.Combine(appInfo.ConfigPath!, "Inputs", "ShowsToAdd.csv");
 if (!File.Exists(allShowsToAdd))
 {
@@ -108,22 +108,29 @@ foreach (var show in addTheseShows)
     newShowRec.Finder = "Skip";
     newShowRec.MediaType = "TS";
     newShowRec.CleanedShowName = Common.RemoveSuffixFromShowName(Common.RemoveSpecialCharsInShowName(newShowRec.ShowName));
-    newShowRec.PremiereDate = DateOnly.Parse(showContent["premiered"]!.ToString());
+    if (showContent["premiered"]!.HasValues)
+    {
+        newShowRec.PremiereDate = DateOnly.Parse(showContent["premiered"]!.ToString());
+    }
+    else
+    {
+        newShowRec.PremiereDate = DateOnly.Parse("01/01/1900");
+    }
     newShowRec.UpdateDate = DateOnly.Parse("01/01/2200");
     
     // TvmShowUpdates
-    bool tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showId) != null;
+    var tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showId) != null;
     var newTvmShowUpdatesRec = new TvmShowUpdate()
     {
         TvmShowId = showId,
         TvmUpdateEpoch = int.Parse(showContent["updated"]!.ToString()),
-        TvmUpdateDate = DateOnly.Parse(showContent["premiered"]!.ToString())
+        TvmUpdateDate = newShowRec.PremiereDate
     };
     
     // TVMaze 
     using var tvmApiUpd = new WebApi(appInfo);
     var updateResult = tvmApiUpd.PutShowToFollowed(showId);
-    if (updateResult == null || !updateResult.IsSuccessStatusCode)
+    if (!updateResult.IsSuccessStatusCode)
     {
         log.Write($"Error Occured trying to update Tvmaze to followed for {showId} {newShowRec.ShowName} with error: {updateResult.StatusCode}");
         continue;
@@ -147,7 +154,118 @@ foreach (var show in addTheseShows)
     }
 
 }
+*/
 
+
+#endregion
+
+#region Add the Episodes
+
+/*
+JArray myEpisodeJArray;
+using (WebApi tvmApi = new(appInfo))
+{
+    myEpisodeJArray = tvmApi.ConvertHttpToJArray(tvmApi.GetAllMyEpisodes());
+};
+
+foreach (var episode in myEpisodeJArray)
+{
+    using WebApi tvmApiAlt = new(appInfo);
+    var epiId = int.Parse(episode["episode_id"]!.ToString());
+    var type = int.Parse(episode["type"]!.ToString());
+    var marked_at = int.Parse(episode["marked_at"]!.ToString());
+
+    using var db = new TvMazeNewDbContext();
+    var episodeExists = db.Episodes.SingleOrDefault(e => e.TvmEpisodeId == epiId);
+    if (episodeExists != null) continue;
+
+    var episodeContent = tvmApiAlt.ConvertHttpToJObject(tvmApiAlt.GetEpisode(epiId));
+    var showId = int.Parse(episodeContent["_embedded"]!["show"]!["id"]!.ToString());
+
+    var showRec = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+    if (showRec == null)
+    {
+        log.Write($"####################   Need to Add TVMaze ShowId: {showId}", "", 0);
+        continue;
+    }
+
+    if (showRec.TvmStatus != "Skipping") continue;
+
+    var url = episodeContent["url"] != null ? episodeContent["url"]!.ToString() : "";
+    var season = episodeContent["season"] != null ? int.Parse(episodeContent["season"]!.ToString()) : 0;
+    var number = 999;
+    try
+    {
+        number = episodeContent["number"] != null ? int.Parse(episodeContent["number"]!.ToString()) : 0;
+    }
+    catch (Exception e)
+    {
+        log.Write($"Exception trying to get the Number for {epiId} of {showId} {url} {e.Message}");
+    }
+    var airdate = DateOnly.Parse("01/01/1900");
+    try
+    {
+        airdate = episodeContent["airdate"] != null  ? DateOnly.Parse(episodeContent["airdate"]!.ToString()) : DateOnly.Parse("01/01/1900");
+    }
+    catch (Exception e)
+    {
+        log.Write($"Exception trying to get the AirDate for {epiId} of {showId} {url} {e.Message}");
+    }
+    
+    var plexDate = DateOnly.Parse(Common.ConvertEpochToDate(marked_at));
+    var plexStatus = type switch
+    {
+        0 => "Watched",
+        1 => "Acquired",
+        2 => "Skipped",
+        _ => ""
+    };
+
+    var episodeRec = new Episode()
+    {
+        TvmShowId = showId,
+        TvmEpisodeId = epiId,
+        PlexStatus = plexStatus,
+        TvmUrl = url,
+        BroadcastDate = airdate,
+        Season = season,
+        Episode1 = number,
+        PlexDate = plexDate,
+        UpdateDate = plexDate,
+        SeasonEpisode = $"S{season:00}E{number:00}"
+    };
+
+    if (season == 0 && number == 0 && airdate == DateOnly.Parse("01/01/1900"))
+    {
+        log.Write($"Something wrong with Episode {showId} {epiId} {url}");
+    }
+    else
+    {
+        db.Episodes.Add(episodeRec);
+        db.SaveChanges();
+        log.Write($"Adding Episode {episodeRec.TvmShowId} {episodeRec.SeasonEpisode} {episodeRec.TvmUrl}");
+    }
+    
+}
+*/
+
+
+#endregion
+
+#region Cleanup unwanted episodes because Show is Skipping and Episode is not recorded or recorded as Skipped
+
+using var db = new TvMazeNewDbContext();
+var episodesToDelete = db.Episodesfullinfos.Where(s => s.TvmStatus == "Skipping" && s.PlexStatus != "Watched").OrderBy(s => s.TvmEpisodeId).ToArray();
+foreach (var rec in episodesToDelete)
+{
+    var delRec = db.Episodes.SingleOrDefault(e => e.TvmEpisodeId == rec.TvmEpisodeId);
+    if (delRec != null)
+    {
+        log.Write($"Deleting {rec.ShowName} {rec.SeasonEpisode} {rec.PlexStatus} {rec.PlexDate} {rec.TvmEpisodeId}");
+        db.Episodes.Remove(delRec);
+        db.SaveChanges();
+    }
+}
 
 #endregion
 

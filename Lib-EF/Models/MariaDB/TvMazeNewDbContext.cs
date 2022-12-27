@@ -43,7 +43,7 @@ namespace PlexMediaControl.Models.MariaDB
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https: //go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseMySql("server=ca-server.local;port=3306;database=TvMazeNewDb;uid=dick;pwd=Sandy3942", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.5.9-mariadb"));
             }
         }
@@ -55,7 +55,7 @@ namespace PlexMediaControl.Models.MariaDB
 
             modelBuilder.Entity<ActionItem>(entity =>
             {
-                entity.HasIndex(e => new {e.Program, e.Message, e.UpdateDateTime}, "ActionItems_UN")
+                entity.HasIndex(e => new { e.Program, e.Message, e.UpdateDateTime }, "ActionItems_UN")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
@@ -143,6 +143,8 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.ShowName).HasMaxLength(100);
 
+                entity.Property(e => e.ShowStatus).HasMaxLength(10);
+
                 entity.Property(e => e.TvmEpisodeId).HasColumnType("int(11)");
 
                 entity.Property(e => e.TvmShowId).HasColumnType("int(11)");
@@ -197,6 +199,8 @@ namespace PlexMediaControl.Models.MariaDB
                 entity.Property(e => e.TvmEpisodeId).HasColumnType("int(11)");
 
                 entity.Property(e => e.TvmShowId).HasColumnType("int(11)");
+
+                entity.Property(e => e.TvmStatus).HasMaxLength(10);
 
                 entity.Property(e => e.TvmUrl)
                     .HasMaxLength(255)
@@ -278,8 +282,7 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.MediaType1)
                     .HasMaxLength(10)
-                    .HasColumnName("MediaType")
-                    .HasDefaultValueSql("''");
+                    .HasColumnName("MediaType");
 
                 entity.Property(e => e.PlexLocation).HasMaxLength(100);
             });
@@ -394,7 +397,7 @@ namespace PlexMediaControl.Models.MariaDB
 
             modelBuilder.Entity<PlexWatchedEpisode>(entity =>
             {
-                entity.HasIndex(e => new {e.TvmShowId, e.TvmEpisodeId}, "PlexWatchedEpisodes_UN")
+                entity.HasIndex(e => new { e.TvmShowId, e.TvmEpisodeId }, "PlexWatchedEpisodes_UN")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");

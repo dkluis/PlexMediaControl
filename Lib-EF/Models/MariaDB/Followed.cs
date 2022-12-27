@@ -7,6 +7,6 @@ namespace PlexMediaControl.Models.MariaDB
     {
         public int Id { get; set; }
         public int TvmShowId { get; set; }
-        public DateTime UpdateDate { get; set; }
+        public DateOnly UpdateDate { get; set; }
     }
 }

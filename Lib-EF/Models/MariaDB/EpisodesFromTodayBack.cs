@@ -9,6 +9,7 @@ namespace PlexMediaControl.Models.MariaDB
         public string ShowName { get; set; } = null!;
         public string CleanedShowName { get; set; } = null!;
         public string AltShowName { get; set; } = null!;
+        public string ShowStatus { get; set; } = null!;
         public int TvmEpisodeId { get; set; }
         public string TvmUrl { get; set; } = null!;
         public string SeasonEpisode { get; set; } = null!;
