@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>Show_Set_To_Skipping</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lib-EF\Lib-EF.csproj" />
+      <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj" />
+      <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj" />
+    </ItemGroup>
+
+</Project>

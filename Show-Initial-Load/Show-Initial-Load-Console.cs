@@ -4,7 +4,7 @@ using Common_Lib;
 using Web_Lib;
 using Newtonsoft.Json.Linq;
 
-var appInfo = new AppInfo("PlexMediaControl", "Shows Load");
+var appInfo = new AppInfo("PlexMediaControl", "Load Skipped Shows");
 var log = appInfo.TxtFile;
 
 log.Start();
@@ -254,6 +254,7 @@ foreach (var episode in myEpisodeJArray)
 
 #region Cleanup unwanted episodes because Show is Skipping and Episode is not recorded or recorded as Skipped
 
+/*
 using var db = new TvMazeNewDbContext();
 var episodesToDelete = db.Episodesfullinfos.Where(s => s.TvmStatus == "Skipping" && s.PlexStatus != "Watched").OrderBy(s => s.TvmEpisodeId).ToArray();
 foreach (var rec in episodesToDelete)
@@ -266,6 +267,7 @@ foreach (var rec in episodesToDelete)
         db.SaveChanges();
     }
 }
+*/
 
 #endregion
 

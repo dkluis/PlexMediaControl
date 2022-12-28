@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib-Common", "Libraries\Lib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib-Web", "Libraries\Lib-Web\Lib-Web.csproj", "{9EC88F1F-E6BA-4380-B79A-4B5A8FB4295B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Show-Set-To-Skipping", "Show-Set-To-Skipping\Show-Set-To-Skipping.csproj", "{CA53ED08-7EB2-491E-88FD-0450439E7AF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9EC88F1F-E6BA-4380-B79A-4B5A8FB4295B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EC88F1F-E6BA-4380-B79A-4B5A8FB4295B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EC88F1F-E6BA-4380-B79A-4B5A8FB4295B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA53ED08-7EB2-491E-88FD-0450439E7AF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA53ED08-7EB2-491E-88FD-0450439E7AF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA53ED08-7EB2-491E-88FD-0450439E7AF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA53ED08-7EB2-491E-88FD-0450439E7AF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
