@@ -11,6 +11,7 @@ public class ActionItemController : ActionItem
         Message = message;
         return Validate();
     }
+
     public bool Add(TextFileHandler log)
     {
         if (!Validate()) return false;
@@ -22,7 +23,8 @@ public class ActionItemController : ActionItem
         {
             log.Write($"Error Occured {e.Message} {e.InnerException}", "ActionItem Add", 1);
             return false;
-        } 
+        }
+
         return true;
     }
 
@@ -30,14 +32,8 @@ public class ActionItemController : ActionItem
     {
         var result = true;
         if (string.IsNullOrEmpty(Message))
-        {
-            result = false; 
-        }
-        else if (string.IsNullOrEmpty(Program))
-        {
             result = false;
-            
-        }
+        else if (string.IsNullOrEmpty(Program)) result = false;
 
         return result;
     }

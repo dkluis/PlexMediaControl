@@ -1,8 +1,6 @@
-﻿using System.Transactions;
+﻿using Common_Lib;
+using PlexMediaControl.Entities;
 using PlexMediaControl.Models.MariaDB;
-using Common_Lib;
-using Web_Lib;
-using Newtonsoft.Json.Linq;
 
 var appInfo = new AppInfo("PlexMediaControl", "Load Skipped Shows");
 var log = appInfo.TxtFile;
@@ -156,7 +154,6 @@ foreach (var show in addTheseShows)
 }
 */
 
-
 #endregion
 
 #region Add the Episodes
@@ -249,7 +246,6 @@ foreach (var episode in myEpisodeJArray)
 }
 */
 
-
 #endregion
 
 #region Cleanup unwanted episodes because Show is Skipping and Episode is not recorded or recorded as Skipped
@@ -271,5 +267,52 @@ foreach (var rec in episodesToDelete)
 
 #endregion
 
-log.Stop();
+#region Unfollow and Delete Skipping Shows with no Episodes
 
+/*
+using var db = new TvMazeNewDbContext();
+var showsToUnfollow = db.Showepisodecounts.ToArray();
+
+var tvmApi = new WebApi(appInfo);
+foreach (var show in showsToUnfollow)
+{
+    var showRec = db.Shows.Single(s => s.TvmShowId == show.ShowsTvmShowId);
+    db.Shows.Remove(showRec);
+    var followed = db.Followeds.Single(f => f.TvmShowId == show.ShowsTvmShowId);
+    db.Followeds.Remove(followed);
+    db.SaveChanges();
+    tvmApi.PutShowToUnfollowed(show.ShowsTvmShowId);
+}
+*/
+
+#endregion
+
+#region Try out some tests
+
+// var result = showCont.GetShow("Secrets & L");
+// log.Write($"Result s: {result.Success} m: {result.Message} i: {result.InfoMessage} e: {result.ErrorMessage}");
+// var showList = result.ResponseObject as List<Show>;
+// var premiereDate = DateOnly.Parse("03/01/2015");
+// //var showFound = showList.Where(s => s.PremiereDate == premiereDate);
+// if (showList != null)
+//     foreach (var show in showList)
+//         log.Write($"Found {show.TvmShowId} {show.ShowName}, {show.AltShowname}, {show.CleanedShowName} {show.ShowStatus} {show.PremiereDate} {show.UpdateDate}");
+
+using var showController = new ShowController()
+{
+    TvmShowId = 99999999,
+    TvmStatus = "Following",
+    TvmUrl = "https://www.tvmaze.com/shows/99999999",
+    ShowName = "TestShow",
+    ShowStatus = "Ended",
+    PremiereDate = DateOnly.Parse("2022/09/12"),
+    Finder = "Multi",
+    MediaType = "TS",
+    UpdateDate = default,
+};
+var response = showController.Add();
+log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
+
+#endregion
+
+log.Stop();

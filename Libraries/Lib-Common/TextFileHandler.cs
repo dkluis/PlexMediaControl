@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
 
 namespace Common_Lib;
 
@@ -102,10 +102,7 @@ public class TextFileHandler
     {
         var content = new List<string>();
         var fileContent = File.ReadAllLines(_fullFilePath);
-        foreach (var line in fileContent)
-        {
-            content.Add(line);
-        }
+        foreach (var line in fileContent) content.Add(line);
 
         content.Reverse();
         return content;

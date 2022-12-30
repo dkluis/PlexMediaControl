@@ -5,13 +5,6 @@ namespace Common_Lib;
 
 public class AppInfo
 {
-    public string ActiveDbConn { get; }
-    private string Application { get; }
-    private string ConfigFileName { get; }
-    private string ConfigFullPath { get; }
-    public string? ConfigPath { get; }
-
-    private string DbAltConn { get; }
     //public readonly string DbConnection;
 
     public readonly string DbProdConn;
@@ -96,4 +89,12 @@ public class AppInfo
                 break;
         }
     }
+
+    public string ActiveDbConn { get; }
+    private string Application { get; }
+    private string ConfigFileName { get; }
+    private string ConfigFullPath { get; }
+    public string? ConfigPath { get; }
+
+    private string DbAltConn { get; }
 }

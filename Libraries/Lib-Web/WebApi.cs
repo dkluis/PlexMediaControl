@@ -166,7 +166,7 @@ public class WebApi : IDisposable
             //Environment.Exit(99);
         }
     }
-    
+
     private void PerformWaitPutShowTvmApiAsync(string api, int show)
     {
         var stopwatch = new Stopwatch();
@@ -195,6 +195,40 @@ public class WebApi : IDisposable
         try
         {
             _httpResponse = await _client.PutAsync(_client.BaseAddress + api, stringContent).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            _log.Write($"Exception: {e.Message} for {api}", "WebAPI Put Async");
+        }
+    }
+
+    private void PerformWaitDeleteShowTvmApiAsync(string api, int show)
+    {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        ShowToFollowed stf = new(show);
+        var content = stf.GetJson();
+        _log.Write($"TVMaze Put Async with {show} turned into {content}", "", 4);
+
+        var t = PerformDeleteTvmApiAsync(api, content);
+        t.Wait();
+
+        stopwatch.Stop();
+        _log.Write($"TVMApi Exec time: {stopwatch.ElapsedMilliseconds} ms.", "", 4);
+
+        if (_httpResponse.IsSuccessStatusCode) return;
+        _log.Write($"Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Put Exec", 4);
+        _httpResponse = new HttpResponseMessage();
+    }
+
+    private async Task PerformDeleteTvmApiAsync(string api, string json)
+    {
+        _log.Write($"json content now is {json} for api {_client.BaseAddress + api}", "WebAPI PPTAA", 4);
+
+        try
+        {
+            _httpResponse = await _client.DeleteAsync(_client.BaseAddress + api).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -262,7 +296,7 @@ public class WebApi : IDisposable
     public HttpResponseMessage GetAllMyEpisodes()
     {
         SetTvmazeUser();
-        var api = $"episodes";
+        var api = "episodes";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUserUrl}{api}", "WebAPI GEBS", 4);
 
@@ -300,12 +334,21 @@ public class WebApi : IDisposable
         if (_httpResponse.IsSuccessStatusCode) isFollowed = true;
         return isFollowed;
     }
-    
+
     public HttpResponseMessage PutShowToFollowed(int showid)
     {
         SetTvmazeUser();
         var api = $"follows/shows/{showid}";
         PerformWaitPutShowTvmApiAsync(api, showid);
+
+        return _httpResponse;
+    }
+
+    public HttpResponseMessage PutShowToUnfollowed(int showid)
+    {
+        SetTvmazeUser();
+        var api = $"follows/shows/{showid}";
+        PerformWaitDeleteShowTvmApiAsync(api, showid);
 
         return _httpResponse;
     }
