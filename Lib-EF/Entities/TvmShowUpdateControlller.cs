@@ -2,7 +2,7 @@ using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
 
-public class TvmShowUpdateControlller : TvmShowUpdate, IDisposable
+public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 {
     void IDisposable.Dispose()
     {

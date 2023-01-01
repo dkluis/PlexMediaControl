@@ -14,7 +14,7 @@ public class AppInfo
     public readonly string FilePath;
     public readonly string FullPath;
     public readonly string? HomeDir;
-    public readonly int LogLevel;
+    public int LogLevel { get; set; }
 
     public readonly string[] MediaExtensions;
     public readonly string Program;

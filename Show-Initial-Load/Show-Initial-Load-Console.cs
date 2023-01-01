@@ -3,6 +3,7 @@ using PlexMediaControl.Entities;
 using PlexMediaControl.Models.MariaDB;
 
 var appInfo = new AppInfo("PlexMediaControl", "Load Skipped Shows");
+appInfo.LogLevel = 5;
 var log = appInfo.TxtFile;
 
 log.Start();
@@ -298,20 +299,17 @@ foreach (var show in showsToUnfollow)
 //     foreach (var show in showList)
 //         log.Write($"Found {show.TvmShowId} {show.ShowName}, {show.AltShowname}, {show.CleanedShowName} {show.ShowStatus} {show.PremiereDate} {show.UpdateDate}");
 
-using var showController = new ShowController()
+using var showController = new ShowController(appInfo)
 {
-    TvmShowId = 99999999,
-    TvmStatus = "Following",
-    TvmUrl = "https://www.tvmaze.com/shows/99999999",
-    ShowName = "TestShow",
-    ShowStatus = "Ended",
-    PremiereDate = DateOnly.Parse("2022/09/12"),
-    Finder = "Multi",
-    MediaType = "TS",
-    UpdateDate = default,
+    TvmShowId = 83,
+    TvmStatus = "Skipping",
 };
+
 var response = showController.Add();
-log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
+
+log.Write(response.Success ? 
+    $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" :
+    $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
 
 #endregion
 

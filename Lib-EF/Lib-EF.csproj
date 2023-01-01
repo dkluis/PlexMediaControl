@@ -29,6 +29,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj" />
+        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj" />
     </ItemGroup>
 
     <ItemGroup>
