@@ -112,7 +112,7 @@ public class TextFileHandler
     {
         if (!File.Exists(_fullFilePath)) return "";
         var filetText = File.ReadAllText(_fullFilePath);
-        var keyValuePair = ConvertJsonTxt.ConvertStringToJArray(filetText);
+        var keyValuePair = Common.ConvertStringToJArray(filetText);
         foreach (var rec in keyValuePair)
         {
             if (rec[find] is null) return "";
@@ -126,35 +126,7 @@ public class TextFileHandler
     {
         if (!File.Exists(_fullFilePath)) return "";
         var fileText = File.ReadAllText(_fullFilePath);
-        var keyValuePair = ConvertJsonTxt.ConvertStringToJObject(fileText);
-        foreach (var rec in keyValuePair)
-            if (rec.Key == find)
-                return rec.Value!.ToString();
-        return "";
-    }
-}
-
-public class ReadKeyFromFile
-{
-    public string FindInArray(string fullPath, string find)
-    {
-        if (!File.Exists(fullPath)) return "";
-        var fileText = File.ReadAllText(fullPath);
-        var keyValuePair = ConvertJsonTxt.ConvertStringToJArray(fileText);
-        foreach (var rec in keyValuePair)
-        {
-            if (rec[find] is null) return "";
-            if (rec[find]!.ToString() != "") return rec[find]!.ToString();
-        }
-
-        return "";
-    }
-
-    public string FindInObject(string fullPath, string find)
-    {
-        if (!File.Exists(fullPath)) return "";
-        var fileText = File.ReadAllText(fullPath);
-        var keyValuePair = ConvertJsonTxt.ConvertStringToJObject(fileText);
+        var keyValuePair = Common.ConvertStringToJObject(fileText);
         foreach (var rec in keyValuePair)
             if (rec.Key == find)
                 return rec.Value!.ToString();

@@ -6,7 +6,6 @@ namespace Common_Lib;
 public class AppInfo
 {
     //public readonly string DbConnection;
-
     public readonly string DbProdConn;
     public readonly string DbTestConn;
     public readonly string Drive;
@@ -14,7 +13,6 @@ public class AppInfo
     public readonly string FilePath;
     public readonly string FullPath;
     public readonly string? HomeDir;
-    public int LogLevel { get; set; }
 
     public readonly string[] MediaExtensions;
     public readonly string Program;
@@ -53,42 +51,33 @@ public class AppInfo
             Environment.Exit(666);
         }
 
-        ReadKeyFromFile readKeyFromFile = new();
-        LogLevel = int.Parse(readKeyFromFile.FindInArray(ConfigFullPath, "LogLevel"));
+        LogLevel = int.Parse(Common.FindInArray(ConfigFullPath, "LogLevel"));
 
         FileName = Program + ".log";
         FilePath = Path.Combine(HomeDir, "Logs");
         FullPath = Path.Combine(FilePath, FileName);
 
         TxtFile = new TextFileHandler(FileName, Program, FilePath, LogLevel);
-        //CnfFile = new TextFileHandler(ConfigFileName, Program, ConfigPath, LogLevel);
 
-        DbProdConn = readKeyFromFile.FindInArray(ConfigFullPath, "DbProduction");
-        DbTestConn = readKeyFromFile.FindInArray(ConfigFullPath, "DbTesting");
-        DbAltConn = readKeyFromFile.FindInArray(ConfigFullPath, "DbAlternate");
+        DbProdConn = Common.FindInArray(ConfigFullPath, "DbProduction");
+        DbTestConn = Common.FindInArray(ConfigFullPath, "DbTesting");
+        DbAltConn = Common.FindInArray(ConfigFullPath, "DbAlternate");
 
-        TvmazeToken = readKeyFromFile.FindInArray(ConfigFullPath, "TvmazeToken");
-        RarbgToken = readKeyFromFile.FindInArray(ConfigFullPath, "RarbgToken");
+        TvmazeToken = Common.FindInArray(ConfigFullPath, "TvmazeToken");
+        RarbgToken = Common.FindInArray(ConfigFullPath, "RarbgToken");
 
-        var me = readKeyFromFile.FindInArray(ConfigFullPath, "MediaExtensions");
-        MediaExtensions = me.Split(", ");
+        MediaExtensions = Common.FindInArray(ConfigFullPath, "MediaExtensions").Split(", ");
 
-        switch (dbConnection)
+        ActiveDbConn = dbConnection switch
         {
-            case "DbProduction":
-                ActiveDbConn = DbProdConn;
-                break;
-            case "DbTesting":
-                ActiveDbConn = DbTestConn;
-                break;
-            case "DbAlternate":
-                ActiveDbConn = DbAltConn;
-                break;
-            default:
-                ActiveDbConn = "";
-                break;
-        }
+            "DbProduction" => DbProdConn,
+            "DbTesting" => DbTestConn,
+            "DbAlternate" => DbAltConn,
+            _ => ""
+        };
     }
+
+    public int LogLevel { get; set; }
 
     public string ActiveDbConn { get; }
     private string Application { get; }

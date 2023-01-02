@@ -1,6 +1,5 @@
 ﻿using Common_Lib;
 using PlexMediaControl.Entities;
-using PlexMediaControl.Models.MariaDB;
 
 var appInfo = new AppInfo("PlexMediaControl", "Load Skipped Shows");
 appInfo.LogLevel = 5;
@@ -302,14 +301,12 @@ foreach (var show in showsToUnfollow)
 using var showController = new ShowController(appInfo)
 {
     TvmShowId = 83,
-    TvmStatus = "Skipping",
+    TvmStatus = "Skipping"
 };
 
 var response = showController.Add();
 
-log.Write(response.Success ? 
-    $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" :
-    $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
+log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
 
 #endregion
 

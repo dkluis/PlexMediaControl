@@ -1,4 +1,3 @@
-using Common_Lib;
 using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
@@ -30,7 +29,7 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         return resp;
     }
-    
+
     public Response Get(int showId)
     {
         var resp = new Response();
@@ -39,7 +38,11 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         {
             using var db = new TvMazeNewDbContext();
             var record = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
-            if (record == null) { resp.ErrorMessage = $"Record for {TvmShowId} not found"; return resp; }
+            if (record == null)
+            {
+                resp.ErrorMessage = $"Record for {TvmShowId} not found";
+                return resp;
+            }
 
             resp.Success = true;
             resp.ResponseObject = record;
@@ -70,5 +73,4 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         if (resp.ErrorMessage == null) resp.Success = true;
         return resp;
     }
-    
 }

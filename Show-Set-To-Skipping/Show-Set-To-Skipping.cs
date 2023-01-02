@@ -1,8 +1,6 @@
-﻿using Common_Lib;
-using PlexMediaControl.Entities;
-using PlexMediaControl.Models.MariaDB;
+﻿using PlexMediaControl.Entities;
 
-const string program = "Show-Set-To-Skipping";
+//const string program = "Show-Set-To-Skipping";
 //var appInfo = new AppInfo("PlexMediaControl", program);
 //var log = appInfo.TxtFile;
 
@@ -33,23 +31,16 @@ foreach (var episodeRec in episodeRecs.Where(episodeRec => episodeRec.PlexStatus
     db.SaveChanges();
 }*/
 
-
 //DeleteEpisodeFiles();
 
 // Testing CommandLine Args
 
 var clArgs = new CommandLineArgs();
 if (clArgs.Success)
-{
     foreach (var arg in clArgs.Args)
-    {
         Console.WriteLine($"{arg.ToString()}");
-    }
-}
 else
-{
-        Console.WriteLine("Nothing Found");
-}
+    Console.WriteLine("Nothing Found");
 
 Console.WriteLine(clArgs.Get("-show1"));
 

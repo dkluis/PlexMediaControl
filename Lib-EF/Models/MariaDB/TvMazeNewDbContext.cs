@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common_Lib;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlexMediaControl.Models.MariaDB;
 
@@ -39,11 +40,11 @@ public partial class TvMazeNewDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        var appInfo = new AppInfo("PlexMediaControl", "TvMazeDbContext", "TvMazeDbContext");
         if (!optionsBuilder.IsConfigured)
-        {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https: //go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-            optionsBuilder.UseMySql("server=ca-server.local;port=3306;database=TvMazeNewDb;uid=dick;pwd=Sandy3942", ServerVersion.Parse("10.5.9-mariadb"));
-        }
+            //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https: //go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+            optionsBuilder.UseMySql(appInfo.ActiveDbConn, ServerVersion.Parse("10.5.9-mariadb"));
+        //optionsBuilder.UseMySql("server=ca-server.local;port=3306;database=TvMazeNewDb;uid=dick;pwd=Sandy3942", ServerVersion.Parse("10.5.9-mariadb"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

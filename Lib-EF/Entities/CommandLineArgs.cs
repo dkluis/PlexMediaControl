@@ -1,12 +1,7 @@
-using Newtonsoft.Json.Converters;
-
 namespace PlexMediaControl.Entities;
 
 public class CommandLineArgs : IDisposable
 {
-    public Dictionary<string, string> Args { get; set; } = new ();
-    public bool Success { get; set; }
-
     public CommandLineArgs(string executable = " ")
     {
         var cliArgs = Environment.GetCommandLineArgs();
@@ -23,6 +18,14 @@ public class CommandLineArgs : IDisposable
         Success = true;
     }
 
+    public Dictionary<string, string> Args { get; set; } = new();
+    public bool Success { get; set; }
+
+    void IDisposable.Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+
     public string Get(string key)
     {
         try
@@ -31,12 +34,7 @@ public class CommandLineArgs : IDisposable
         }
         catch (Exception e)
         {
-            return $"{key} not found";
+            return $"{key} not found {e.Message}";
         }
-    }
-
-    void IDisposable.Dispose()
-    {
-        GC.SuppressFinalize(this);
     }
 }

@@ -1,21 +1,19 @@
 using Common_Lib;
-using Microsoft.Extensions.Logging;
-using Web_Lib;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
-
+using Web_Lib;
 
 namespace PlexMediaControl.Entities;
 
 public class ShowController : Show, IDisposable
 {
-    private AppInfo AppInfo { get; }
-    public TvmShow TvmShowInfo { get; set; } = new TvmShow();
-
     public ShowController(AppInfo appInfo)
     {
         AppInfo = appInfo;
     }
+
+    private AppInfo AppInfo { get; }
+    public TvmShow TvmShowInfo { get; set; } = new();
 
     void IDisposable.Dispose()
     {
@@ -23,7 +21,7 @@ public class ShowController : Show, IDisposable
     }
 
     public Response Get(int showId, bool getTvmInfo = false)
-    { 
+    {
         var resp = new Response();
         try
         {
@@ -48,10 +46,10 @@ public class ShowController : Show, IDisposable
         }
 
         if (!getTvmInfo) return resp;
-        
+
         var result = GetTvmShowInfo();
         if (result.Success) return resp;
-        
+
         resp.Success = false;
         resp.Message = "Trying to get TvMaze Info";
         resp.ErrorMessage = result.ErrorMessage;
@@ -87,13 +85,17 @@ public class ShowController : Show, IDisposable
     public Response Add()
     {
         var resp = new Response();
-        if (TvmShowId == 0) { resp.ErrorMessage = $"No TvmShowId was set"; return resp; } 
-        
+        if (TvmShowId == 0)
+        {
+            resp.ErrorMessage = "No TvmShowId was set";
+            return resp;
+        }
+
         using var db = new TvMazeNewDbContext();
         var showExist = db.Shows.SingleOrDefault(s => s.TvmShowId == TvmShowId);
         var followedExist = db.Followeds.SingleOrDefault(f => f.TvmShowId == TvmShowId);
         var tvmShowUpdates = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
-        
+
         try
         {
             if (showExist != null)
@@ -103,11 +105,15 @@ public class ShowController : Show, IDisposable
                 resp.InfoMessage = $"Show already exists in DB {showExist.TvmShowId} {showExist.ShowName}";
                 return resp;
             }
-            
+
             // Get TvMaze Info on the show
             var resultGet = GetTvmShowInfo();
-            if (!resultGet.Success) { resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {resultGet.ErrorMessage}"; return resp; }
-            
+            if (!resultGet.Success)
+            {
+                resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {resultGet.ErrorMessage}";
+                return resp;
+            }
+
             ShowName = TvmShowInfo.Name;
             TvmUrl = TvmShowInfo.Url;
             TvmStatus = TvmShowInfo.Status;
@@ -115,14 +121,9 @@ public class ShowController : Show, IDisposable
             if (string.IsNullOrEmpty(MediaType)) MediaType = "TS";
             if (string.IsNullOrEmpty(Finder)) Finder = "Multi";
             if (string.IsNullOrEmpty(ShowStatus) && Finder != "Skip")
-            {
                 ShowStatus = "Following";
-            }
-            else if (Finder == "Skip")
-            {
-                ShowStatus = "Skipping";
-            }
-            
+            else if (Finder == "Skip") ShowStatus = "Skipping";
+
             // Validate the Show for insert in the DB
             var validResp = Valid();
             if (!validResp.Success)
@@ -147,7 +148,7 @@ public class ShowController : Show, IDisposable
                     resp.Message = "TvmShowUpdateController " + resultAddTsu.Message;
                     resp.InfoMessage = resultAddTsu.InfoMessage;
                     resp.ErrorMessage = resultAddTsu.ErrorMessage;
-                    resp.InfoMessage = $"tvmShowUpdate";
+                    resp.InfoMessage = "tvmShowUpdate";
                 }
             }
 
@@ -164,7 +165,7 @@ public class ShowController : Show, IDisposable
                     resp.Message = "FollowedController " + resultAddFol.Message;
                     resp.InfoMessage = resultAddFol.InfoMessage;
                     resp.ErrorMessage = resultAddFol.ErrorMessage;
-                    resp.InfoMessage = $"tvmShowUpdate";
+                    resp.InfoMessage = "tvmShowUpdate";
                 }
             }
 
@@ -192,12 +193,12 @@ public class ShowController : Show, IDisposable
             var aiRec = new ActionItem
             {
                 Program = "ShowController",
-                Message = $"Db Failure {TvmShowId} {ShowName} {e.Message} {e.InnerException}",
+                Message = $"Db Failure {TvmShowId} {ShowName} {e.Message} {e.InnerException}"
             };
             var result = ActionItemController.Record(aiRec);
-            if (!result.Success) { resp.ErrorMessage += $" Action Write also failed {result.ErrorMessage}"; }
-            
-            return (resp);
+            if (!result.Success) resp.ErrorMessage += $" Action Write also failed {result.ErrorMessage}";
+
+            return resp;
         }
 
         resp.Success = true;
@@ -214,7 +215,11 @@ public class ShowController : Show, IDisposable
         using WebApi tvmApi = new(AppInfo);
         var showJson = tvmApi.ConvertHttpToJObject(tvmApi.GetShow(TvmShowId));
 
-        if (showJson.Count == 0) { resp.ErrorMessage = $"ShowId {TvmShowId} not found"; return resp; }
+        if (showJson.Count == 0)
+        {
+            resp.ErrorMessage = $"ShowId {TvmShowId} not found";
+            return resp;
+        }
 
         resp.ErrorMessage += showJson["id"] == null ? "Id was null, " : "";
         resp.ErrorMessage += showJson["url"] == null ? "Url was null, " : "";
@@ -243,7 +248,7 @@ public class ShowController : Show, IDisposable
         TvmShowInfo.RunTime = int.Parse(showJson["runtime"]?.ToString() ?? string.Empty);
         TvmShowInfo.EndDate = endDate;
         PremiereDate = premDate;
-  
+
         resp.Success = true;
         return resp;
     }
@@ -259,7 +264,7 @@ public class ShowController : Show, IDisposable
         if (PremiereDate == DateOnly.Parse("0001/01/01")) resp.ErrorMessage += "No PremiereDate Found, ";
         if (string.IsNullOrEmpty(Finder)) resp.ErrorMessage += "No Finder Found, ";
         if (string.IsNullOrEmpty(MediaType)) resp.ErrorMessage += "No MediaType Found, ";
-        
+
         if (resp.ErrorMessage == null) resp.Success = true;
         return resp;
     }

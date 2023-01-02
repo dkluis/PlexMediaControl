@@ -8,12 +8,16 @@ public abstract class ActionItemController : IDisposable
     {
         GC.SuppressFinalize(this);
     }
-    
+
     public static Response Record(ActionItem record)
     {
         var resp = new Response();
-        if (!Validate(record)) { resp.ErrorMessage = "Message or Program or both were blank"; return resp; }
-        
+        if (!Validate(record))
+        {
+            resp.ErrorMessage = "Message or Program or both were blank";
+            return resp;
+        }
+
         try
         {
             using var db = new TvMazeNewDbContext();
@@ -39,6 +43,4 @@ public abstract class ActionItemController : IDisposable
 
         return result;
     }
-    
-
 }

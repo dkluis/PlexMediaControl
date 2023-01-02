@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 
 namespace Common_Lib;
 
@@ -110,6 +111,55 @@ public static class Common
         calculatedDt = calculatedDt.AddDays(-days);
         date = calculatedDt.ToString("yyyy-MM-DD");
         return date;
+    }
+
+    public static string FindInArray(string fullPath, string find)
+    {
+        if (!File.Exists(fullPath)) return "";
+        var fileText = File.ReadAllText(fullPath);
+        var keyValuePair = ConvertStringToJArray(fileText);
+        foreach (var rec in keyValuePair)
+        {
+            if (rec[find] is null) return "";
+            if (rec[find]!.ToString() != "") return rec[find]!.ToString();
+        }
+
+        return "";
+    }
+
+    public static string FindInObject(string fullPath, string find)
+    {
+        if (!File.Exists(fullPath)) return "";
+        var fileText = File.ReadAllText(fullPath);
+        var keyValuePair = ConvertStringToJObject(fileText);
+        foreach (var rec in keyValuePair)
+            if (rec.Key == find)
+                return rec.Value!.ToString();
+        return "";
+    }
+
+    public static JArray ConvertStringToJArray(string message)
+    {
+        if (message == "")
+        {
+            JArray empty = new();
+            return empty;
+        }
+
+        var jA = JArray.Parse(message);
+        return jA;
+    }
+
+    public static JObject ConvertStringToJObject(string message)
+    {
+        if (message == "")
+        {
+            JObject empty = new();
+            return empty;
+        }
+
+        var jO = JObject.Parse(message);
+        return jO;
     }
 
     public class EnvInfo
