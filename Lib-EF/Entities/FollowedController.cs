@@ -9,7 +9,7 @@ public class FollowedController : Followed, IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public Response Add(Followed followed)
+    public Response Add()
     {
         var resp = new Response();
 

@@ -1,21 +1,20 @@
 using Common_Lib;
+using Web_Lib;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
-using Web_Lib;
+
 
 namespace PlexMediaControl.Entities;
 
 public class ShowController : Show, IDisposable
 {
+    private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new TvmShow();
-    //public new List<Episode> Episodes { get; set; } = new List<Episode>();
 
     public ShowController(AppInfo appInfo)
     {
         AppInfo = appInfo;
     }
-
-    private AppInfo AppInfo { get; }
 
     void IDisposable.Dispose()
     {
@@ -48,12 +47,13 @@ public class ShowController : Show, IDisposable
         }
 
         if (!getTvmInfo) return resp;
+        
         var result = GetTvmShowInfo();
-        if (!result.Success)
-        {
-            // Figure out what to return and why
-        }
-
+        if (result.Success) return resp;
+        
+        resp.Success = false;
+        resp.Message = "Trying to get TvMaze Info";
+        resp.ErrorMessage = result.ErrorMessage;
         return resp;
     }
 
@@ -102,8 +102,9 @@ public class ShowController : Show, IDisposable
                 return resp;
             }
             
-            var result = GetTvmShowInfo();
-            if (!result.Success) { resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {result.ErrorMessage}"; return resp; }
+            // Get TvMaze Info on the show
+            var resultGet = GetTvmShowInfo();
+            if (!resultGet.Success) { resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {resultGet.ErrorMessage}"; return resp; }
             
             ShowName = TvmShowInfo!.Name;
             TvmUrl = TvmShowInfo.Url;
@@ -120,6 +121,7 @@ public class ShowController : Show, IDisposable
                 ShowStatus = "Skipping";
             };
             
+            // Validate the Show for insert in the DB
             var validResp = Valid();
             if (!validResp.Success)
             {
@@ -128,41 +130,42 @@ public class ShowController : Show, IDisposable
                 resp.InfoMessage = validResp.ErrorMessage;
                 return resp;
             }
-            
+
+            // Handle the needed tvmShowUpdate record
             if (tvmShowUpdates == null)
             {
-                using var tvmShowUpdateController = new TvmShowUpdateController()
-                {
-                    TvmShowId = TvmShowId,
-                    TvmUpdateEpoch = TvmShowInfo.Updated,
-                    TvmUpdateDate = DateOnly.Parse(DateTime.Now.ToShortDateString()),
-                };
-                var tsu = tvmShowUpdateController.Add();
-                if (!tsu.Success)
+                using var tvmShowUpdateController = new TvmShowUpdateController();
+                tvmShowUpdateController.TvmShowId = TvmShowId;
+                tvmShowUpdateController.TvmUpdateEpoch = TvmShowInfo.Updated;
+                tvmShowUpdateController.TvmUpdateDate = DateOnly.Parse(DateTime.Now.ToShortDateString());
+                var resultAddTsu = tvmShowUpdateController.Add();
+                if (!resultAddTsu.Success)
                 {
                     resp.Success = false;
-                    resp.Message = "tvmShowUpdateController " + tsu.Message;
-                    resp.InfoMessage = tsu.InfoMessage;
-                    resp.ErrorMessage = tsu.ErrorMessage;
-                    return resp;
+                    resp.Message = "TvmShowUpdateController " + resultAddTsu.Message;
+                    resp.InfoMessage = resultAddTsu.InfoMessage;
+                    resp.ErrorMessage = resultAddTsu.ErrorMessage;
+                    resp.InfoMessage = $"tvmShowUpdate";
                 }
-                resp.InfoMessage = $"tvmShowUpdate";
             }
-            
+
+            // Handle the needed Followed record
             if (followedExist == null)
             {
-                // var tsu = FollowedController.Add();
-                // if (!tsu.Success)
-                // {
-                //     resp.Success = false;
-                //     resp.Message = "tvmShowUpdateController " + tsu.Message;
-                //     resp.InfoMessage = tsu.InfoMessage;
-                //     resp.ErrorMessage = tsu.ErrorMessage;
-                //     return resp;
-                // }
-                resp.InfoMessage = $"followed";
+                using var followedController = new FollowedController();
+                followedController.TvmShowId = TvmShowId;
+                followedController.UpdateDate = UpdateDate;
+                var resultAddFol = followedController.Add();
+                if (!resultAddFol.Success)
+                {
+                    resp.Success = false;
+                    resp.Message = "FollowedController " + resultAddFol.Message;
+                    resp.InfoMessage = resultAddFol.InfoMessage;
+                    resp.ErrorMessage = resultAddFol.ErrorMessage;
+                    resp.InfoMessage = $"tvmShowUpdate";
+                }
             }
-            
+
             CleanedShowName = Common.RemoveSpecialCharsInShowName(ShowName);
             if (TvmStatus == "Skipping" || Finder == "Skip")
             {
@@ -172,13 +175,12 @@ public class ShowController : Show, IDisposable
             }
             else
             {
-                UpdateDate = DateOnly.FromDateTime(DateTime.Now);   
+                UpdateDate = DateOnly.FromDateTime(DateTime.Now);
             }
 
             db.Add(this);
             db.SaveChanges();
             resp.InfoMessage = "Show";
-
         }
         catch (Exception e)
         {
@@ -215,13 +217,17 @@ public class ShowController : Show, IDisposable
         var premDate = DateOnly.Parse("1900-01-01");
         if (showJson["premiered"] != null) premDate = DateOnly.Parse(showJson["premiered"]!.ToString());
 
-        
         TvmShowInfo!.Id = int.Parse(showJson["id"]!.ToString());
         TvmShowInfo!.Url = showJson["url"]!.ToString();
         TvmShowInfo.Name = showJson["name"]!.ToString();
         TvmShowInfo.Language = showJson["language"]?.ToString();
         TvmShowInfo.Updated = int.Parse(showJson["updated"]!.ToString());
         TvmShowInfo.Status = showJson["status"]!.ToString();
+        TvmShowInfo.Country = showJson["network"]?["country"]?["name"]?.ToString();
+        TvmShowInfo.CountryCode = showJson["network"]?["country"]?["code"]?.ToString();
+        TvmShowInfo.Type = showJson["type"]?.ToString();
+        TvmShowInfo.Network = showJson["network"]?["name"]?.ToString();
+        TvmShowInfo.NetworkUrl = showJson["network"]?["officialSite"]?.ToString();
         PremiereDate = premDate;
   
         resp.Success = true;

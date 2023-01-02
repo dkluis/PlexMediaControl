@@ -95,6 +95,5 @@ public class AppInfo
     private string ConfigFileName { get; }
     private string ConfigFullPath { get; }
     public string? ConfigPath { get; }
-
     private string DbAltConn { get; }
 }
