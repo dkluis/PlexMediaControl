@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Security.AccessControl;
 
 namespace Common_Lib;
 
 public class AppInfo
 {
-    private readonly string Drive;
-    private readonly string FullPath;
-    private readonly string[] MediaExtensions;
+    private readonly string _drive;
+    private readonly string _fullPath;
+    private readonly string[] _mediaExtensions;
 
     public string? ConfigPath { get; }
     public string RarbgToken { get; }
@@ -18,9 +19,8 @@ public class AppInfo
     
     public AppInfo(string application, string program, string dbConnection = "DbProduction")
     {
-        Common.EnvInfo envInfo = new();
-        Drive = envInfo.Drive;
-        var homeDir = envInfo.Os == "Windows"
+        _drive = Common.EnvInfo.Drive;
+        var homeDir = Common.EnvInfo.Os == "Windows"
             ? Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%")
             : Environment.GetEnvironmentVariable("HOME");
 
@@ -47,15 +47,11 @@ public class AppInfo
 
         var fileName = program + ".log";
         var filePath = Path.Combine(homeDir, "Logs");
-        FullPath = Path.Combine(filePath, fileName);
-
+        _fullPath = Path.Combine(filePath, fileName);
         TxtFile = new TextFileHandler(fileName, program, filePath, LogLevel);
-
         TvMazeToken = Common.FindInArray(configFullPath, "TvmazeToken");
         RarbgToken = Common.FindInArray(configFullPath, "RarbgToken");
-
-        MediaExtensions = Common.FindInArray(configFullPath, "MediaExtensions").Split(", ");
-
+        _mediaExtensions = Common.FindInArray(configFullPath, "MediaExtensions").Split(", ");
         ActiveDbConn = dbConnection switch
         {
             "DbProduction" => Common.FindInArray(configFullPath, "DbProduction"),

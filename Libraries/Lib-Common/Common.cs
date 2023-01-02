@@ -147,16 +147,16 @@ public static class Common
         return jO;
     }
 
-    public class EnvInfo
+    public static class EnvInfo
     {
-        public readonly string Drive;
-        public readonly string MachineName;
-        public readonly string Os;
-        public readonly string UserName;
-        public readonly string? WorkingDrive;
-        public readonly string WorkingPath;
-
-        public EnvInfo()
+        public static readonly string Drive;
+        public static readonly string MachineName;
+        public static readonly string Os;
+        public static readonly string UserName;
+        public static readonly string? WorkingDrive;
+        public static readonly string WorkingPath;
+        
+        static EnvInfo()
         {
             var os = Environment.OSVersion;
             var pid = os.Platform;
