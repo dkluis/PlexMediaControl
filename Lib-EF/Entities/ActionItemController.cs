@@ -1,40 +1,44 @@
-using Common_Lib;
 using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
 
-public class ActionItemController : ActionItem
+public abstract class ActionItemController : IDisposable
 {
-    public bool Fill(string program, string message)
+    void IDisposable.Dispose()
     {
-        Program = program;
-        Message = message;
-        return Validate();
+        GC.SuppressFinalize(this);
     }
-
-    public bool Add(TextFileHandler log)
+    
+    public static Response Record(ActionItem record)
     {
-        if (!Validate()) return false;
+        var resp = new Response();
+        if (!Validate(record)) { resp.ErrorMessage = "Message or Program or both were blank"; return resp; }
+        
         try
         {
-            //ToDo write the Add Method
+            using var db = new TvMazeNewDbContext();
+            db.ActionItems.Add(record);
+            db.SaveChanges();
         }
         catch (Exception e)
         {
-            log.Write($"Error Occured {e.Message} {e.InnerException}", "ActionItem Add", 1);
-            return false;
+            resp.ErrorMessage = $"Error Occured {e.Message} {e.InnerException}";
+            return resp;
         }
 
-        return true;
+        resp.Success = true;
+        return resp;
     }
 
-    private bool Validate()
+    private static bool Validate(ActionItem check)
     {
         var result = true;
-        if (string.IsNullOrEmpty(Message))
+        if (string.IsNullOrEmpty(check.Message))
             result = false;
-        else if (string.IsNullOrEmpty(Program)) result = false;
+        else if (string.IsNullOrEmpty(check.Program)) result = false;
 
         return result;
     }
+    
+
 }

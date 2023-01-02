@@ -1,4 +1,5 @@
 using Common_Lib;
+using Microsoft.Extensions.Logging;
 using Web_Lib;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
@@ -68,6 +69,7 @@ public class ShowController : Show, IDisposable
                 .Where(s => s.ShowName == showName ||
                             s.AltShowname == showName ||
                             s.CleanedShowName == cleanedShowName)
+                .Select(s => new {s.Id, s.TvmShowId, s.ShowName, s.ShowStatus})
                 .ToList();
             resp.Success = true;
             resp.ResponseObject = shows;
@@ -106,7 +108,7 @@ public class ShowController : Show, IDisposable
             var resultGet = GetTvmShowInfo();
             if (!resultGet.Success) { resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {resultGet.ErrorMessage}"; return resp; }
             
-            ShowName = TvmShowInfo!.Name;
+            ShowName = TvmShowInfo.Name;
             TvmUrl = TvmShowInfo.Url;
             TvmStatus = TvmShowInfo.Status;
             PremiereDate = TvmShowInfo.PremiereDate;
@@ -119,7 +121,7 @@ public class ShowController : Show, IDisposable
             else if (Finder == "Skip")
             {
                 ShowStatus = "Skipping";
-            };
+            }
             
             // Validate the Show for insert in the DB
             var validResp = Valid();
@@ -187,6 +189,14 @@ public class ShowController : Show, IDisposable
             resp.Success = false;
             resp.Message = "Exception Error";
             resp.ErrorMessage = $"{e.Message}, {e.InnerException}";
+            var aiRec = new ActionItem
+            {
+                Program = "ShowController",
+                Message = $"Db Failure {TvmShowId} {ShowName} {e.Message} {e.InnerException}",
+            };
+            var result = ActionItemController.Record(aiRec);
+            if (!result.Success) { resp.ErrorMessage += $" Action Write also failed {result.ErrorMessage}"; }
+            
             return (resp);
         }
 
@@ -216,9 +226,11 @@ public class ShowController : Show, IDisposable
 
         var premDate = DateOnly.Parse("1900-01-01");
         if (showJson["premiered"] != null) premDate = DateOnly.Parse(showJson["premiered"]!.ToString());
+        var endDate = DateOnly.Parse("2300-01-01");
+        if (showJson["ended"] != null) endDate = DateOnly.Parse(showJson["ended"]!.ToString());
 
-        TvmShowInfo!.Id = int.Parse(showJson["id"]!.ToString());
-        TvmShowInfo!.Url = showJson["url"]!.ToString();
+        TvmShowInfo.Id = int.Parse(showJson["id"]!.ToString());
+        TvmShowInfo.Url = showJson["url"]!.ToString();
         TvmShowInfo.Name = showJson["name"]!.ToString();
         TvmShowInfo.Language = showJson["language"]?.ToString();
         TvmShowInfo.Updated = int.Parse(showJson["updated"]!.ToString());
@@ -228,6 +240,8 @@ public class ShowController : Show, IDisposable
         TvmShowInfo.Type = showJson["type"]?.ToString();
         TvmShowInfo.Network = showJson["network"]?["name"]?.ToString();
         TvmShowInfo.NetworkUrl = showJson["network"]?["officialSite"]?.ToString();
+        TvmShowInfo.RunTime = int.Parse(showJson["runtime"]?.ToString() ?? string.Empty);
+        TvmShowInfo.EndDate = endDate;
         PremiereDate = premDate;
   
         resp.Success = true;
