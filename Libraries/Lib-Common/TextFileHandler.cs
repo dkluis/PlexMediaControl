@@ -30,9 +30,7 @@ public class TextFileHandler
 
     public void Elapsed()
     {
-        EmptyLine();
         Write($"{_app} Elapsed up to now: {_timer.ElapsedMilliseconds} mSec", "Elapsed Time", 0);
-        EmptyLine();
     }
 
     public void Stop()
@@ -107,5 +105,4 @@ public class TextFileHandler
         content.Reverse();
         return content;
     }
-    
 }

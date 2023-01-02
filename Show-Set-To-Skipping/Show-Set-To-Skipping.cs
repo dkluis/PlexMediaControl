@@ -1,22 +1,22 @@
 ﻿using Common_Lib;
-using PlexMediaControl.Entities;
+using PlexMediaControl.Models.MariaDB;
 
-//const string program = "Show-Set-To-Skipping";
-//var appInfo = new AppInfo("PlexMediaControl", program);
-//var log = appInfo.TxtFile;
+const string program = "Show-Set-To-Skipping";
+var appInfo = new AppInfo("PlexMediaControl", program);
+var log = appInfo.TxtFile;
 
-//log.Start();
+log.Start();
 
 // var argsToUse = CommandLineArgs.PrintArgs(program);
 // if (argsToUse.Count < 1) Environment.Exit(99);
 // var showId = "";
 // if (argsToUse.TryGetValue("showId", out showId) == null) Environment.Exit(88); 
 
-/*var showId = 4022;
-
+var showId = 4022;
+log.Elapsed();
 using var db = new TvMazeNewDbContext();
 var showRec = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
-
+log.Elapsed();
 if (showRec == null) Environment.Exit(99);
 
 showRec.TvmStatus = "Skipping";
@@ -30,13 +30,13 @@ foreach (var episodeRec in episodeRecs.Where(episodeRec => episodeRec.PlexStatus
 {
     db.Episodes.Remove(episodeRec);
     db.SaveChanges();
-}*/
+}
 
 //DeleteEpisodeFiles();
 
 // Testing CommandLine Args
 
-var clArgs = new CommandLineArgs();
+/*var clArgs = new CommandLineArgs();
 if (clArgs.Success)
     foreach (var arg in clArgs.Args)
         Console.WriteLine($"{arg.ToString()}");
@@ -47,7 +47,7 @@ Console.WriteLine(clArgs.Get("-show1"));
 
 //log.Stop();
 
-Environment.Exit(0);
+Environment.Exit(0);*/
 
 /*bool DeleteEpisodeFiles()
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Security.AccessControl;
 
 namespace Common_Lib;
 
@@ -10,13 +9,6 @@ public class AppInfo
     private readonly string _fullPath;
     private readonly string[] _mediaExtensions;
 
-    public string? ConfigPath { get; }
-    public string RarbgToken { get; }
-    public string TvMazeToken { get; }
-    public TextFileHandler TxtFile { get; }
-    public int LogLevel { get; set; }
-    public string ActiveDbConn { get; }
-    
     public AppInfo(string application, string program, string dbConnection = "DbProduction")
     {
         _drive = Common.EnvInfo.Drive;
@@ -61,4 +53,10 @@ public class AppInfo
         };
     }
 
+    public string? ConfigPath { get; }
+    public string RarbgToken { get; }
+    public string TvMazeToken { get; }
+    public TextFileHandler TxtFile { get; }
+    public int LogLevel { get; set; }
+    public string ActiveDbConn { get; }
 }

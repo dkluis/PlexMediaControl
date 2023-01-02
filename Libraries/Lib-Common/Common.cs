@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
@@ -155,7 +154,7 @@ public static class Common
         public static readonly string UserName;
         public static readonly string? WorkingDrive;
         public static readonly string WorkingPath;
-        
+
         static EnvInfo()
         {
             var os = Environment.OSVersion;
