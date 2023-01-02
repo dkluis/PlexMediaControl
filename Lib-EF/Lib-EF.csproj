@@ -13,35 +13,35 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.12"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.12" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.12">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1"/>
-        <PackageReference Include="MySqlConnector" Version="2.2.3"/>
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+        <PackageReference Include="MySqlConnector" Version="2.2.3" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Models\MariaDB\"/>
+        <Folder Include="Models\MariaDB\" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj"/>
-        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj" />
+        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="obj\**"/>
+        <Compile Remove="obj\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Remove="obj\**"/>
+        <EmbeddedResource Remove="obj\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="obj\**"/>
+        <None Remove="obj\**" />
     </ItemGroup>
 
 </Project>

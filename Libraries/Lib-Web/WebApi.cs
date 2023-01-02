@@ -32,7 +32,7 @@ public class WebApi : IDisposable
     {
         _log = appInfo.TxtFile;
         _rarbgApiUrlSuf = appInfo.RarbgToken;
-        _tvmazeSecurity = appInfo.TvmazeToken;
+        _tvmazeSecurity = appInfo.TvMazeToken;
     }
 
     public void Dispose()

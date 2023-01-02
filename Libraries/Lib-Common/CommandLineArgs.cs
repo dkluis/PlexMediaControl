@@ -1,4 +1,7 @@
-namespace PlexMediaControl.Entities;
+using System;
+using System.Collections.Generic;
+
+namespace Common_Lib;
 
 public class CommandLineArgs : IDisposable
 {

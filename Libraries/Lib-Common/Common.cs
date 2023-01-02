@@ -8,21 +8,6 @@ namespace Common_Lib;
 
 public static class Common
 {
-    public static string ReadConfig(string key)
-    {
-        try
-        {
-            var appSettings = ConfigurationManager.AppSettings;
-            var result = appSettings[key] ?? "Not Found";
-            return result;
-        }
-        catch (ConfigurationErrorsException e)
-        {
-            Console.WriteLine($"Error reading app settings in Common {e.Message}");
-            return $"Error Reading app.config: {e.BareMessage}";
-        }
-    }
-
     public static string RemoveSpecialCharsInShowName(string showName)
     {
         showName = showName.Replace("...", "")

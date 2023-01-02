@@ -28,6 +28,13 @@ public class TextFileHandler
             $"{_app} Started  ########################################################################################", _app, 0);
     }
 
+    public void Elapsed()
+    {
+        EmptyLine();
+        Write($"{_app} Elapsed up to now: {_timer.ElapsedMilliseconds} mSec", "Elapsed Time", 0);
+        EmptyLine();
+    }
+
     public void Stop()
     {
         _timer.Stop();
@@ -61,13 +68,6 @@ public class TextFileHandler
         foreach (var msg in messages) file.WriteLine($"{DateTime.Now}: {function,-20}: {loglevel,-2}--> {msg}");
     }
 
-    public void Elapsed()
-    {
-        EmptyLine();
-        Write($"{_app} Elapsed up to now: {_timer.ElapsedMilliseconds} mSec", "Elapsed Time", 0);
-        EmptyLine();
-    }
-
     public void EmptyLine(int lines = 1)
     {
         var idx = 1;
@@ -79,7 +79,7 @@ public class TextFileHandler
         }
     }
 
-    public void WriteNoHead(string message, bool newline = true, bool append = true)
+    public void WriteText(string message, bool newline = true, bool append = true)
     {
         using StreamWriter file = new(_fullFilePath, append);
         if (newline)
@@ -88,7 +88,7 @@ public class TextFileHandler
             file.Write(message);
     }
 
-    public void WriteNoHead(string[] messages, bool newline = true, bool append = true)
+    public void WriteText(string[] messages, bool newline = true, bool append = true)
     {
         using StreamWriter file = new(_fullFilePath, append);
         foreach (var msg in messages)
@@ -107,29 +107,5 @@ public class TextFileHandler
         content.Reverse();
         return content;
     }
-
-    public string ReadKeyArray(string find)
-    {
-        if (!File.Exists(_fullFilePath)) return "";
-        var filetText = File.ReadAllText(_fullFilePath);
-        var keyValuePair = Common.ConvertStringToJArray(filetText);
-        foreach (var rec in keyValuePair)
-        {
-            if (rec[find] is null) return "";
-            if (rec[find]!.ToString() != "") return rec[find]!.ToString();
-        }
-
-        return "";
-    }
-
-    public string ReadKeyObject(string find)
-    {
-        if (!File.Exists(_fullFilePath)) return "";
-        var fileText = File.ReadAllText(_fullFilePath);
-        var keyValuePair = Common.ConvertStringToJObject(fileText);
-        foreach (var rec in keyValuePair)
-            if (rec.Key == find)
-                return rec.Value!.ToString();
-        return "";
-    }
+    
 }
