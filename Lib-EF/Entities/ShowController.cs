@@ -26,10 +26,11 @@ public class ShowController : Show, IDisposable
         try
         {
             using var db = new TvMazeNewDbContext();
-            var show = new Show();
-            show = getEpisodes ? db.Shows.Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+            var show = getEpisodes ? 
+                db.Shows.Include(m => m.MediaType).Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : 
+                db.Shows.Include(m => m.MediaType).SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
-            {
+            { 
                 resp.Success = true;
                 resp.ResponseObject = show;
             }

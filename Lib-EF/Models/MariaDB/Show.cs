@@ -2,11 +2,6 @@
 
 public class Show
 {
-    public Show()
-    {
-        Episodes = new HashSet<Episode>();
-    }
-
     public int Id { get; set; }
     public int TvmShowId { get; set; }
     public string TvmStatus { get; set; } = null!;
@@ -24,5 +19,5 @@ public class Show
     public virtual ShowStatus ShowStatusNavigation { get; set; } = null!;
     public virtual TvmShowUpdate TvmShow { get; set; } = null!;
     public virtual TvmStatus TvmStatusNavigation { get; set; } = null!;
-    public virtual ICollection<Episode> Episodes { get; set; }
+    public virtual ICollection<Episode> Episodes { get; set; } = new HashSet<Episode>();
 }
