@@ -11,16 +11,16 @@ public class ShowController : Show, IDisposable
     {
         AppInfo = appInfo;
     }
-
     private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new();
+    public List<Episode> ShowEpisodes { get; set; } = new();
 
     void IDisposable.Dispose()
     {
         GC.SuppressFinalize(this);
     }
 
-    public Response Get(int showId, bool getTvmInfo = false)
+    public Response Get(int showId, bool getTvmInfo = false, bool getEpisodes = false)
     {
         var resp = new Response();
         try
@@ -45,14 +45,28 @@ public class ShowController : Show, IDisposable
             resp.ErrorMessage = $"{resp.Message}: {e.Message} {e.InnerException}";
         }
 
-        if (!getTvmInfo) return resp;
+        if (getEpisodes)
+        {
+            var episodeController = new EpisodeController(AppInfo);
+            var epiResult = episodeController.GetAllEpisodes(TvmShowId);
+            if (!epiResult.Success)
+            {
+                resp.Success = false;
+                resp.Message += "Trying to get all Episodes";
+                resp.ErrorMessage += epiResult.ErrorMessage;
+            }
 
+            ShowEpisodes = (epiResult.ResponseObject as List<Episode>)!;
+        }
+
+        if (!getTvmInfo) return resp;
+      
         var result = GetTvmShowInfo();
         if (result.Success) return resp;
-
+        
         resp.Success = false;
-        resp.Message = "Trying to get TvMaze Info";
-        resp.ErrorMessage = result.ErrorMessage;
+        resp.Message += "Trying to get TvMaze Info";
+        resp.ErrorMessage += result.ErrorMessage;
         return resp;
     }
 
@@ -213,7 +227,7 @@ public class ShowController : Show, IDisposable
         var resp = new Response();
 
         using WebApi tvmApi = new(AppInfo);
-        var showJson = tvmApi.ConvertHttpToJObject(tvmApi.GetShow(TvmShowId));
+        var showJson = WebApi.ConvertHttpToJObject(tvmApi.GetShow(TvmShowId));
 
         if (showJson.Count == 0)
         {

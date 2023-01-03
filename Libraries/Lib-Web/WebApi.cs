@@ -26,7 +26,7 @@ public class WebApi : IDisposable
     private HttpResponseMessage _httpResponse = new();
     private bool _tvmazeUrlInitialized;
     private bool _tvmazeUserUrlInitialized;
-    public bool IsTimedOut;
+    private bool _isTimedOut;
 
     public WebApi(AppInfo appInfo)
     {
@@ -40,10 +40,10 @@ public class WebApi : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public JObject ConvertHttpToJObject(HttpResponseMessage message)
+    public static JObject ConvertHttpToJObject(HttpResponseMessage message)
     {
         var content = message.Content.ReadAsStringAsync().Result;
-        if (content == "")
+        if (string.IsNullOrEmpty(content))
         {
             JObject empty = new();
             return empty;
@@ -53,10 +53,10 @@ public class WebApi : IDisposable
         return jObject;
     }
 
-    public JArray ConvertHttpToJArray(HttpResponseMessage message)
+    public static JArray ConvertHttpToJArray(HttpResponseMessage message)
     {
         var content = message.Content.ReadAsStringAsync().Result;
-        if (content == "")
+        if (string.IsNullOrEmpty(content))
         {
             JArray empty = new();
             return empty;
@@ -64,13 +64,6 @@ public class WebApi : IDisposable
 
         var jArray = JArray.Parse(content);
         return jArray;
-    }
-
-    public HttpClientHandler ShowRssLogin(string user, string password)
-    {
-        HttpClientHandler hch = new();
-        hch.Credentials = new NetworkCredential(user, password);
-        return hch;
     }
 
     #region TVMaze Show APIs
@@ -86,7 +79,7 @@ public class WebApi : IDisposable
         execTime.Stop();
         _log.Write($"TVMApi Exec time: {execTime.ElapsedMilliseconds} ms.", "", 4);
 
-        if (IsTimedOut)
+        if (_isTimedOut)
         {
             _log.Write($"TimedOut --> Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Exec");
             _httpResponse = new HttpResponseMessage();
@@ -114,7 +107,7 @@ public class WebApi : IDisposable
         try
         {
             _httpResponse = await _client.GetAsync(api).ConfigureAwait(false);
-            IsTimedOut = false;
+            _isTimedOut = false;
         }
         catch (Exception e)
         {
@@ -130,7 +123,7 @@ public class WebApi : IDisposable
                 {
                     _log.Write($"2nd Exception: {ee.Message}", "WebAPI Async");
                     _httpResponse = new HttpResponseMessage();
-                    IsTimedOut = true;
+                    _isTimedOut = true;
                     Console.WriteLine(
                         "########### Aborting from PerformTvmApiAsync 2nd Exception ###################");
                     Environment.Exit(99);
@@ -238,27 +231,23 @@ public class WebApi : IDisposable
 
     private void SetTvmaze()
     {
-        if (!_tvmazeUrlInitialized)
-        {
-            _client.BaseAddress = new Uri(TvmazeUrl);
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _client.DefaultRequestHeaders.UserAgent.TryParseAdd("Tvmaze C# App");
-            _client.Timeout = TimeSpan.FromSeconds(30);
-            _tvmazeUrlInitialized = true;
-        }
+        if (_tvmazeUrlInitialized) return;
+        _client.BaseAddress = new Uri(TvmazeUrl);
+        _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _client.DefaultRequestHeaders.UserAgent.TryParseAdd("Tvmaze C# App");
+        _client.Timeout = TimeSpan.FromSeconds(30);
+        _tvmazeUrlInitialized = true;
     }
 
     private void SetTvmazeUser()
     {
-        if (!_tvmazeUserUrlInitialized)
-        {
-            _client.BaseAddress = new Uri(TvmazeUserUrl);
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _client.DefaultRequestHeaders.Add("Authorization", _tvmazeSecurity);
-            _client.DefaultRequestHeaders.UserAgent.TryParseAdd("Tvmaze C# App");
-            _client.Timeout = TimeSpan.FromSeconds(30);
-            _tvmazeUserUrlInitialized = true;
-        }
+        if (_tvmazeUserUrlInitialized) return;
+        _client.BaseAddress = new Uri(TvmazeUserUrl);
+        _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _client.DefaultRequestHeaders.Add("Authorization", _tvmazeSecurity);
+        _client.DefaultRequestHeaders.UserAgent.TryParseAdd("Tvmaze C# App");
+        _client.Timeout = TimeSpan.FromSeconds(30);
+        _tvmazeUserUrlInitialized = true;
     }
 
     public HttpResponseMessage GetShow(string showName)
@@ -273,20 +262,20 @@ public class WebApi : IDisposable
         return _httpResponse;
     }
 
-    public HttpResponseMessage GetShow(int showid)
+    public HttpResponseMessage GetShow(int showId)
     {
         SetTvmaze();
-        var api = $"shows/{showid}";
+        var api = $"shows/{showId}";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUrl}{api}", "WebAPI GS Int", 4);
 
         return _httpResponse;
     }
 
-    public HttpResponseMessage GetEpisodesByShow(int showid)
+    public HttpResponseMessage GetEpisodesByShow(int showId)
     {
         SetTvmaze();
-        var api = $"shows/{showid}/episodes";
+        var api = $"shows/{showId}/episodes";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUrl}{api}", "WebAPI GEBS", 4);
 
@@ -324,31 +313,31 @@ public class WebApi : IDisposable
         return _httpResponse;
     }
 
-    public bool CheckForFollowedShow(int showid)
+    public bool CheckForFollowedShow(int showId)
     {
         var isFollowed = false;
         SetTvmazeUser();
-        var api = $"follows/shows/{showid}";
+        var api = $"follows/shows/{showId}";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUserUrl}{api}", "WebAPI GFS", 4);
         if (_httpResponse.IsSuccessStatusCode) isFollowed = true;
         return isFollowed;
     }
 
-    public HttpResponseMessage PutShowToFollowed(int showid)
+    public HttpResponseMessage PutShowToFollowed(int showId)
     {
         SetTvmazeUser();
-        var api = $"follows/shows/{showid}";
-        PerformWaitPutShowTvmApiAsync(api, showid);
+        var api = $"follows/shows/{showId}";
+        PerformWaitPutShowTvmApiAsync(api, showId);
 
         return _httpResponse;
     }
 
-    public HttpResponseMessage PutShowToUnfollowed(int showid)
+    public HttpResponseMessage PutShowToUnfollowed(int showId)
     {
         SetTvmazeUser();
-        var api = $"follows/shows/{showid}";
-        PerformWaitDeleteShowTvmApiAsync(api, showid);
+        var api = $"follows/shows/{showId}";
+        PerformWaitDeleteShowTvmApiAsync(api, showId);
 
         return _httpResponse;
     }
@@ -452,53 +441,50 @@ public class WebApi : IDisposable
     #endregion
 
     #endregion
-}
-
-[SuppressMessage("ReSharper", "NotAccessedField.Global")]
-public class EpisodeMarking
-{
-    public int episode_id;
-    public int marked_at;
-    public int type;
-
-    public EpisodeMarking(int epi, string date, string ty = "")
+    
+    private class EpisodeMarking
     {
-        episode_id = epi;
-        marked_at = Common.ConvertDateToEpoch(date);
-        switch (ty)
+        // ReSharper disable once InconsistentNaming
+        private int episode_id;
+        // ReSharper disable once InconsistentNaming
+        private int marked_at;
+        // ReSharper disable once InconsistentNaming
+        private int type;
+
+        public EpisodeMarking(int epi, string date, string ty = "")
         {
-            case "Watched":
-                type = 0;
-                break;
-            case "Acquired":
-                type = 1;
-                break;
-            case "Skipped":
-                type = 2;
-                break;
-            default:
-                type = 0;
-                break;
+            episode_id = epi;
+            marked_at = Common.ConvertDateToEpoch(date);
+            type = ty switch
+            {
+                "Watched" => 0,
+                "Acquired" => 1,
+                "Skipped" => 2,
+                _ => 0
+            };
+        }
+
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 
-    public string GetJson()
+    private class ShowToFollowed
     {
-        return JsonConvert.SerializeObject(this);
+        // ReSharper disable once InconsistentNaming
+        private int show_id;
+
+        public ShowToFollowed(int showId)
+        {
+            show_id = showId;
+        }
+
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }
 
-public class ShowToFollowed
-{
-    private int show_id;
 
-    public ShowToFollowed(int showId)
-    {
-        show_id = showId;
-    }
-
-    public string GetJson()
-    {
-        return JsonConvert.SerializeObject(this);
-    }
-}

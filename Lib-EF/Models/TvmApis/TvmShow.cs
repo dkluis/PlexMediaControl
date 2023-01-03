@@ -10,7 +10,7 @@ public class TvmShow
     public int RunTime { get; set; }
     public string? Language { get; set; }
     public int Updated { get; set; }
-    public DateOnly PremiereDate { get; set; } = DateOnly.Parse("1900-01-01");
+    public DateOnly PremiereDate { get; } = DateOnly.Parse("1900-01-01");
     public DateOnly EndDate { get; set; } = DateOnly.Parse("2300-01-01");
     public string? Network { get; set; }
     public string? NetworkUrl { get; set; }
