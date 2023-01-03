@@ -1,4 +1,5 @@
 using Common_Lib;
+using Microsoft.EntityFrameworkCore;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
 using Web_Lib;
@@ -13,7 +14,6 @@ public class ShowController : Show, IDisposable
     }
     private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new();
-    public List<Episode> ShowEpisodes { get; set; } = new();
 
     void IDisposable.Dispose()
     {
@@ -26,7 +26,8 @@ public class ShowController : Show, IDisposable
         try
         {
             using var db = new TvMazeNewDbContext();
-            var show = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+            var show = new Show();
+            show = getEpisodes ? db.Shows.Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
             {
                 resp.Success = true;
@@ -43,20 +44,6 @@ public class ShowController : Show, IDisposable
             resp.Success = false;
             resp.Message = "Db operation error";
             resp.ErrorMessage = $"{resp.Message}: {e.Message} {e.InnerException}";
-        }
-
-        if (getEpisodes)
-        {
-            var episodeController = new EpisodeController(AppInfo);
-            var epiResult = episodeController.GetAllEpisodes(TvmShowId);
-            if (!epiResult.Success)
-            {
-                resp.Success = false;
-                resp.Message += "Trying to get all Episodes";
-                resp.ErrorMessage += epiResult.ErrorMessage;
-            }
-
-            ShowEpisodes = (epiResult.ResponseObject as List<Episode>)!;
         }
 
         if (!getTvmInfo) return resp;

@@ -1,4 +1,5 @@
 ﻿using Common_Lib;
+using PlexMediaControl.Entities;
 using PlexMediaControl.Models.MariaDB;
 
 const string program = "Show-Set-To-Skipping";
@@ -12,13 +13,20 @@ log.Start();
 // var showId = "";
 // if (argsToUse.TryGetValue("showId", out showId) == null) Environment.Exit(88); 
 
-var showId = 4022;
+var showId = 57680;
 log.Elapsed();
-using var db = new TvMazeNewDbContext();
-var showRec = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+using var showController = new ShowController(appInfo);
+var response = showController.Get(showId, getEpisodes: true);
+var showRec = response.ResponseObject as Show;
+var epiWatched = showRec!.Episodes.Where(e => e.PlexStatus == "Acquired");
 log.Elapsed();
 if (showRec == null) Environment.Exit(99);
-
+foreach (var epi in showRec.Episodes)
+{
+    Console.WriteLine($"{showRec.ShowName} {epi.SeasonEpisode} {epi.PlexStatus} {epi.PlexDate}");
+}
+Environment.Exit(0);
+/*
 showRec.TvmStatus = "Skipping";
 showRec.Finder = "Skip";
 showRec.UpdateDate = DateOnly.Parse("01/01/2200");
@@ -31,6 +39,7 @@ foreach (var episodeRec in episodeRecs.Where(episodeRec => episodeRec.PlexStatus
     db.Episodes.Remove(episodeRec);
     db.SaveChanges();
 }
+*/
 
 //DeleteEpisodeFiles();
 
