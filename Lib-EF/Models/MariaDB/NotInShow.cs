@@ -1,6 +1,10 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class Notinshow
+namespace PlexMediaControl.Models.MariaDB
 {
-    public int FollowedTvmShowId { get; set; }
+    public partial class Notinshow
+    {
+        public int FollowedTvmShowId { get; set; }
+    }
 }

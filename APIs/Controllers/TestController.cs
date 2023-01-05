@@ -33,12 +33,12 @@ public class TestController : ControllerBase
             TvmUrl = "Url",
             ShowName = "ShowName",
             ShowStatus = "ShowStatus",
-            PremiereDate = DateOnly.Parse("2023-01-01"),
+            PremiereDate = new DateTime(2023-01-01),
             Finder = "Finder",
             MediaType = "MediaType",
             CleanedShowName = "Clean",
             AltShowname = "Alt",
-            UpdateDate = DateOnly.Parse("2023-01-01")
+            UpdateDate = new DateTime(2023-01-01)
         };
         // return new ActionItem
         // {

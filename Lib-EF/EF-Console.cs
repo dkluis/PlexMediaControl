@@ -6,7 +6,7 @@ var log = appInfo.TxtFile;
 
 log.Start();
 
-var db = new TvMazeNewDbContext();
+var db = new TvMaze();
 
 var totalRecords = 0;
 var recCount = db.ActionItems.Count();
@@ -60,3 +60,6 @@ log.Stop();
 //
 
 // dotnet ef dbContext scaffold "Server=ca-server.local;port=3306;Database=TvMazeNewDb;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql -o Models/MariaDB -f
+
+// dotnet ef dbContext scaffold "Server=ca-server.local;port=3306;Database=TvMazeProd;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql -o Models/MariaDB -f -c TvMaze --schema TvMazeProd --no-build
+

@@ -20,7 +20,7 @@ public abstract class ActionItemController : IDisposable
 
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             db.ActionItems.Add(record);
             db.SaveChanges();
         }

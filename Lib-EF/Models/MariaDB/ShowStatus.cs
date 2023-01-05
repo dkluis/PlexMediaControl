@@ -1,13 +1,17 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class ShowStatus
+namespace PlexMediaControl.Models.MariaDB
 {
-    public ShowStatus()
+    public partial class ShowStatus
     {
-        Shows = new HashSet<Show>();
+        public ShowStatus()
+        {
+            Shows = new HashSet<Show>();
+        }
+
+        public string ShowStatus1 { get; set; } = null!;
+
+        public virtual ICollection<Show> Shows { get; set; }
     }
-
-    public string ShowStatus1 { get; set; } = null!;
-
-    public virtual ICollection<Show> Shows { get; set; }
 }

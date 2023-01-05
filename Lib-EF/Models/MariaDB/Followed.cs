@@ -1,8 +1,12 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class Followed
+namespace PlexMediaControl.Models.MariaDB
 {
-    public int Id { get; set; }
-    public int TvmShowId { get; set; }
-    public DateOnly UpdateDate { get; set; }
+    public partial class Followed
+    {
+        public int Id { get; set; }
+        public int TvmShowId { get; set; }
+        public DateOnly UpdateDate { get; set; }
+    }
 }

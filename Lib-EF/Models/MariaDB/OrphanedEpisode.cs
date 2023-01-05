@@ -1,6 +1,10 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class Orphanedepisode
+namespace PlexMediaControl.Models.MariaDB
 {
-    public int TvmShowId { get; set; }
+    public partial class Orphanedepisode
+    {
+        public int TvmShowId { get; set; }
+    }
 }

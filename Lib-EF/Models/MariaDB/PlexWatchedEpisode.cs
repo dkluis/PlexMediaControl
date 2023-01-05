@@ -1,15 +1,19 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class PlexWatchedEpisode
+namespace PlexMediaControl.Models.MariaDB
 {
-    public int Id { get; set; }
-    public int? TvmShowId { get; set; }
-    public int? TvmEpisodeId { get; set; }
-    public string PlexShowName { get; set; } = null!;
-    public int PlexSeasonNum { get; set; }
-    public int PlexEpisodeNum { get; set; }
-    public string PlexSeasonEpisode { get; set; } = null!;
-    public string PlexWatchedDate { get; set; } = null!;
-    public bool ProcessedToTvmaze { get; set; }
-    public string UpdateDate { get; set; } = null!;
+    public partial class PlexWatchedEpisode
+    {
+        public int Id { get; set; }
+        public int? TvmShowId { get; set; }
+        public int? TvmEpisodeId { get; set; }
+        public string PlexShowName { get; set; } = null!;
+        public int PlexSeasonNum { get; set; }
+        public int PlexEpisodeNum { get; set; }
+        public string PlexSeasonEpisode { get; set; } = null!;
+        public string PlexWatchedDate { get; set; } = null!;
+        public bool ProcessedToTvmaze { get; set; }
+        public string UpdateDate { get; set; } = null!;
+    }
 }

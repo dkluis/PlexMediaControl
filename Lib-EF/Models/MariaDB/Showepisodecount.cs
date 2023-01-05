@@ -1,10 +1,15 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class Showepisodecount
+namespace PlexMediaControl.Models.MariaDB
 {
-    public int ShowsTvmShowId { get; set; }
-    public string ShowName { get; set; } = null!;
-    public string Status { get; set; } = null!;
-    public string? Url { get; set; }
-    public int? EpisodeCount { get; set; }
+    public partial class Showepisodecount
+    {
+        public int ShowsTvmShowId { get; set; }
+        public string ShowName { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public string? Url { get; set; }
+        public string ShowStatus { get; set; } = null!;
+        public long? EpisodeCount { get; set; }
+    }
 }

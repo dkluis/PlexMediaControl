@@ -24,7 +24,7 @@ public class EpisodeController : Episode, IDisposable
         var resp = new Response();
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             var showEpisodes = db.Episodes.Where(s => s.TvmShowId == showId).ToArray();
             if (showEpisodes.Length != 0)
             {

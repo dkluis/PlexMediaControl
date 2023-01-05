@@ -17,7 +17,7 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             db.TvmShowUpdates.Add(this);
             db.SaveChanges();
         }
@@ -36,7 +36,7 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             var record = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
             if (record == null)
             {

@@ -26,7 +26,7 @@ public class ShowController : Show, IDisposable
         var resp = new Response();
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             var show = getEpisodes ? db.Shows.Include(m => m.MediaType).Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.Include(m => m.MediaType).SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
             {
@@ -63,7 +63,7 @@ public class ShowController : Show, IDisposable
         var cleanedShowName = Common.RemoveSpecialCharsInShowName(showName);
         try
         {
-            using var db = new TvMazeNewDbContext();
+            using var db = new TvMaze();
             var shows = db.Shows
                 .Where(s => s.ShowName == showName ||
                             s.AltShowname == showName ||
@@ -92,7 +92,7 @@ public class ShowController : Show, IDisposable
             return resp;
         }
 
-        using var db = new TvMazeNewDbContext();
+        using var db = new TvMaze();
         var showExist = db.Shows.SingleOrDefault(s => s.TvmShowId == TvmShowId);
         var followedExist = db.Followeds.SingleOrDefault(f => f.TvmShowId == TvmShowId);
         var tvmShowUpdates = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
@@ -118,7 +118,7 @@ public class ShowController : Show, IDisposable
             ShowName = TvmShowInfo.Name;
             TvmUrl = TvmShowInfo.Url;
             TvmStatus = TvmShowInfo.Status;
-            PremiereDate = TvmShowInfo.PremiereDate;
+            PremiereDate = TvmShowInfo.PremiereDate.ToDateTime(TimeOnly.MinValue);
             if (string.IsNullOrEmpty(MediaType)) MediaType = "TS";
             if (string.IsNullOrEmpty(Finder)) Finder = "Multi";
             if (string.IsNullOrEmpty(ShowStatus) && Finder != "Skip")
@@ -158,7 +158,7 @@ public class ShowController : Show, IDisposable
             {
                 using var followedController = new FollowedController();
                 followedController.TvmShowId = TvmShowId;
-                followedController.UpdateDate = UpdateDate;
+                followedController.UpdateDate = DateOnly.FromDateTime(UpdateDate);
                 var resultAddFol = followedController.Add();
                 if (!resultAddFol.Success)
                 {
@@ -175,11 +175,11 @@ public class ShowController : Show, IDisposable
             {
                 TvmStatus = "Skipping";
                 Finder = "Skip";
-                UpdateDate = DateOnly.Parse("2200-01-01");
+                UpdateDate = new DateTime(2200-01-01);
             }
             else
             {
-                UpdateDate = DateOnly.FromDateTime(DateTime.Now);
+                UpdateDate = DateTime.Now;
             }
 
             db.Add(this);
@@ -248,7 +248,7 @@ public class ShowController : Show, IDisposable
         TvmShowInfo.NetworkUrl = showJson["network"]?["officialSite"]?.ToString();
         TvmShowInfo.RunTime = int.Parse(showJson["runtime"]?.ToString() ?? string.Empty);
         TvmShowInfo.EndDate = endDate;
-        PremiereDate = premDate;
+        PremiereDate = premDate.ToDateTime(TimeOnly.MinValue);
 
         resp.Success = true;
         return resp;
@@ -262,7 +262,7 @@ public class ShowController : Show, IDisposable
         if (string.IsNullOrEmpty(TvmStatus)) resp.ErrorMessage += "No TvmStatus Found, ";
         if (string.IsNullOrEmpty(TvmUrl)) resp.ErrorMessage += "No TvmUrl Found, ";
         if (string.IsNullOrEmpty(ShowStatus)) resp.ErrorMessage += "No ShowStatus Found, ";
-        if (PremiereDate == DateOnly.Parse("0001/01/01")) resp.ErrorMessage += "No PremiereDate Found, ";
+        if (PremiereDate == new DateTime(0001-01-01)) resp.ErrorMessage += "No PremiereDate Found, ";
         if (string.IsNullOrEmpty(Finder)) resp.ErrorMessage += "No Finder Found, ";
         if (string.IsNullOrEmpty(MediaType)) resp.ErrorMessage += "No MediaType Found, ";
 
