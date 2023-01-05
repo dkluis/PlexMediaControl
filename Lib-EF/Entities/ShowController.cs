@@ -12,6 +12,7 @@ public class ShowController : Show, IDisposable
     {
         AppInfo = appInfo;
     }
+
     private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new();
 
@@ -26,11 +27,9 @@ public class ShowController : Show, IDisposable
         try
         {
             using var db = new TvMazeNewDbContext();
-            var show = getEpisodes ? 
-                db.Shows.Include(m => m.MediaType).Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : 
-                db.Shows.Include(m => m.MediaType).SingleOrDefault(s => s.TvmShowId == showId);
+            var show = getEpisodes ? db.Shows.Include(m => m.MediaType).Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.Include(m => m.MediaType).SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
-            { 
+            {
                 resp.Success = true;
                 resp.ResponseObject = show;
             }
@@ -48,10 +47,10 @@ public class ShowController : Show, IDisposable
         }
 
         if (!getTvmInfo) return resp;
-      
+
         var result = GetTvmShowInfo();
         if (result.Success) return resp;
-        
+
         resp.Success = false;
         resp.Message += "Trying to get TvMaze Info";
         resp.ErrorMessage += result.ErrorMessage;

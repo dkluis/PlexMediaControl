@@ -153,7 +153,6 @@ public static class Common
         public static readonly string Os;
         public static readonly string UserName;
         public static readonly string? WorkingDrive;
-        public static readonly string WorkingPath;
 
         static EnvInfo()
         {
@@ -173,6 +172,8 @@ public static class Common
                     Os = "Linux";
                     Drive = @"/";
                     break;
+                case PlatformID.Xbox:
+                case PlatformID.Other:
                 default:
                     Os = "Unknown";
                     Drive = "Unknown";
@@ -180,8 +181,8 @@ public static class Common
             }
 
             MachineName = Environment.MachineName;
-            WorkingPath = Environment.CurrentDirectory;
-            WorkingDrive = Path.GetPathRoot(WorkingPath);
+            var workingPath = Environment.CurrentDirectory;
+            WorkingDrive = Path.GetPathRoot(workingPath);
             UserName = Environment.UserName;
         }
     }

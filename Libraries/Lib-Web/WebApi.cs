@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -24,9 +22,9 @@ public class WebApi : IDisposable
     private readonly string _rarbgApiUrlSuf;
     private readonly string _tvmazeSecurity;
     private HttpResponseMessage _httpResponse = new();
+    private bool _isTimedOut;
     private bool _tvmazeUrlInitialized;
     private bool _tvmazeUserUrlInitialized;
-    private bool _isTimedOut;
 
     public WebApi(AppInfo appInfo)
     {
@@ -64,6 +62,52 @@ public class WebApi : IDisposable
 
         var jArray = JArray.Parse(content);
         return jArray;
+    }
+
+    private class EpisodeMarking
+    {
+        // ReSharper disable once InconsistentNaming
+        private int episode_id;
+
+        // ReSharper disable once InconsistentNaming
+        private int marked_at;
+
+        // ReSharper disable once InconsistentNaming
+        private int type;
+
+        public EpisodeMarking(int epi, string date, string ty = "")
+        {
+            episode_id = epi;
+            marked_at = Common.ConvertDateToEpoch(date);
+            type = ty switch
+            {
+                "Watched" => 0,
+                "Acquired" => 1,
+                "Skipped" => 2,
+                _ => 0
+            };
+        }
+
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    private class ShowToFollowed
+    {
+        // ReSharper disable once InconsistentNaming
+        private int show_id;
+
+        public ShowToFollowed(int showId)
+        {
+            show_id = showId;
+        }
+
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 
     #region TVMaze Show APIs
@@ -441,50 +485,4 @@ public class WebApi : IDisposable
     #endregion
 
     #endregion
-    
-    private class EpisodeMarking
-    {
-        // ReSharper disable once InconsistentNaming
-        private int episode_id;
-        // ReSharper disable once InconsistentNaming
-        private int marked_at;
-        // ReSharper disable once InconsistentNaming
-        private int type;
-
-        public EpisodeMarking(int epi, string date, string ty = "")
-        {
-            episode_id = epi;
-            marked_at = Common.ConvertDateToEpoch(date);
-            type = ty switch
-            {
-                "Watched" => 0,
-                "Acquired" => 1,
-                "Skipped" => 2,
-                _ => 0
-            };
-        }
-
-        public string GetJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-    }
-
-    private class ShowToFollowed
-    {
-        // ReSharper disable once InconsistentNaming
-        private int show_id;
-
-        public ShowToFollowed(int showId)
-        {
-            show_id = showId;
-        }
-
-        public string GetJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-    }
 }
-
-

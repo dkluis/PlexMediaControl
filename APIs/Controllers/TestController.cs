@@ -7,7 +7,7 @@ namespace APIs.Controllers;
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
+    private static readonly string[] Summaries =
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
@@ -29,21 +29,23 @@ public class TestController : ControllerBase
         {
             Id = 0,
             TvmShowId = 0,
-            TvmStatus = null,
-            TvmUrl = null,
-            ShowName = null,
-            ShowStatus = null,
-            PremiereDate = default,
-            Finder = null,
-            MediaType = null,
-            CleanedShowName = null,
-            AltShowname = null,
-            UpdateDate = default,
-            MediaTypeNavigation = null,
-            ShowStatusNavigation = null,
-            TvmShow = null,
-            TvmStatusNavigation = null,
-            Episodes = null
+            TvmStatus = "Status",
+            TvmUrl = "Url",
+            ShowName = "ShowName",
+            ShowStatus = "ShowStatus",
+            PremiereDate = DateOnly.Parse("2023-01-01"),
+            Finder = "Finder",
+            MediaType = "MediaType",
+            CleanedShowName = "Clean",
+            AltShowname = "Alt",
+            UpdateDate = DateOnly.Parse("2023-01-01")
         };
+        // return new ActionItem
+        // {
+        //     Id = 0,
+        //     Program = "Program",
+        //     Message = "Message",
+        //     UpdateDateTime = DateTime.Now,
+        // };
     }
 }

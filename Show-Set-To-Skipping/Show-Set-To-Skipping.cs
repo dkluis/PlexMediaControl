@@ -21,10 +21,7 @@ var showRec = response.ResponseObject as Show;
 var epiWatched = showRec!.Episodes.Where(e => e.PlexStatus == "Acquired");
 log.Elapsed();
 if (showRec == null) Environment.Exit(99);
-foreach (var epi in showRec.Episodes)
-{
-    Console.WriteLine($"{showRec.ShowName} {epi.SeasonEpisode} {epi.PlexStatus} {epi.PlexDate}");
-}
+foreach (var epi in showRec.Episodes) Console.WriteLine($"{showRec.ShowName} {epi.SeasonEpisode} {epi.PlexStatus} {epi.PlexDate}");
 Environment.Exit(0);
 /*
 showRec.TvmStatus = "Skipping";

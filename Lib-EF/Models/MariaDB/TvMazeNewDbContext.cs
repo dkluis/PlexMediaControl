@@ -45,7 +45,9 @@ public partial class TvMazeNewDbContext : DbContext
         {
             optionsBuilder.UseMySql(appInfo.ActiveDbConn, ServerVersion.Parse("10.5.9-mariadb"));
             optionsBuilder.UseLazyLoadingProxies();
-        };
+        }
+
+        ;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
