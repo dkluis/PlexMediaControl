@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlexMediaControl.Models.MariaDB;
 
 namespace APIs.Controllers;
@@ -22,10 +23,10 @@ public class TestController : ControllerBase
     [HttpGet(Name = "GetTest")]
     public Show Get()
     {
-        //using var db = new TvMazeNewDbContext();
-        //var show = db.Shows.Single(s => s.Id == 1);
-        //return show;
-        return new Show
+        using var db = new TvMaze();
+        var show = db.Shows.Single(s => s.Id == 1);
+        return show;
+        /*return new Show
         {
             Id = 0,
             TvmShowId = 0,
@@ -39,7 +40,7 @@ public class TestController : ControllerBase
             CleanedShowName = "Clean",
             AltShowname = "Alt",
             UpdateDate = new DateTime(2023-01-01)
-        };
+        };*/
         // return new ActionItem
         // {
         //     Id = 0,
