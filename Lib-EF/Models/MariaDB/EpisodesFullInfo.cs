@@ -16,10 +16,10 @@ namespace PlexMediaControl.Models.MariaDB
         public string SeasonEpisode { get; set; } = null!;
         public int Season { get; set; }
         public int Episode { get; set; }
-        public DateOnly? BroadcastDate { get; set; }
+        public DateTime? BroadcastDate { get; set; }
         public string PlexStatus { get; set; } = null!;
-        public DateOnly? PlexDate { get; set; }
-        public DateOnly UpdateDate { get; set; }
+        public DateTime? PlexDate { get; set; }
+        public DateTime UpdateDate { get; set; }
         public string Finder { get; set; } = null!;
         public string? MediaType { get; set; }
         public DateTime ShowUpdateDate { get; set; }

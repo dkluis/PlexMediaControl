@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Common_Lib;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Common_Lib;
 
 namespace PlexMediaControl.Models.MariaDB
 {
@@ -46,8 +46,8 @@ namespace PlexMediaControl.Models.MariaDB
             var appInfo = new AppInfo(application: "PlexMediaControl", program: "Db Context");
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql(appInfo.ActiveDbConn, Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.5.9-mariadb"));
+                //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseMySql(appInfo.ActiveDbConn, ServerVersion.Parse("10.5.9-mariadb"));
             }
         }
 
@@ -67,7 +67,7 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.Program).HasMaxLength(25);
 
-                entity.Property(e => e.UpdateDateTime).HasMaxLength(20);
+                entity.Property(e => e.UpdateDateTime).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Episode>(entity =>
@@ -81,9 +81,13 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
+                entity.Property(e => e.BroadcastDate).HasColumnType("datetime");
+
                 entity.Property(e => e.Episode1)
                     .HasColumnType("int(11)")
                     .HasColumnName("Episode");
+
+                entity.Property(e => e.PlexDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PlexStatus)
                     .HasMaxLength(10)
@@ -101,7 +105,9 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(255)
                     .HasDefaultValueSql("' '");
 
-                entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
+                entity.Property(e => e.UpdateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("curdate()");
 
                 entity.HasOne(d => d.PlexStatusNavigation)
                     .WithMany(p => p.Episodes)
@@ -126,6 +132,8 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(100)
                     .HasDefaultValueSql("' '");
 
+                entity.Property(e => e.BroadcastDate).HasColumnType("datetime");
+
                 entity.Property(e => e.CleanedShowName)
                     .HasMaxLength(100)
                     .HasDefaultValueSql("' '");
@@ -135,6 +143,8 @@ namespace PlexMediaControl.Models.MariaDB
                 entity.Property(e => e.Finder)
                     .HasMaxLength(10)
                     .HasDefaultValueSql("'Multi'");
+
+                entity.Property(e => e.PlexDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PlexStatus)
                     .HasMaxLength(10)
@@ -156,7 +166,9 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(255)
                     .HasDefaultValueSql("' '");
 
-                entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
+                entity.Property(e => e.UpdateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("curdate()");
             });
 
             modelBuilder.Entity<Episodesfullinfo>(entity =>
@@ -173,6 +185,8 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(3)
                     .IsFixedLength();
 
+                entity.Property(e => e.BroadcastDate).HasColumnType("datetime");
+
                 entity.Property(e => e.CleanedShowName)
                     .HasMaxLength(100)
                     .HasDefaultValueSql("' '");
@@ -186,6 +200,8 @@ namespace PlexMediaControl.Models.MariaDB
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
                 entity.Property(e => e.MediaType).HasMaxLength(10);
+
+                entity.Property(e => e.PlexDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PlexStatus)
                     .HasMaxLength(10)
@@ -211,7 +227,9 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(255)
                     .HasDefaultValueSql("' '");
 
-                entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
+                entity.Property(e => e.UpdateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("curdate()");
             });
 
             modelBuilder.Entity<Episodestoacquire>(entity =>
@@ -224,6 +242,8 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(100)
                     .HasDefaultValueSql("' '");
 
+                entity.Property(e => e.BroadcastDate).HasColumnType("datetime");
+
                 entity.Property(e => e.CleanedShowName)
                     .HasMaxLength(100)
                     .HasDefaultValueSql("' '");
@@ -233,6 +253,8 @@ namespace PlexMediaControl.Models.MariaDB
                 entity.Property(e => e.Finder)
                     .HasMaxLength(10)
                     .HasDefaultValueSql("'Multi'");
+
+                entity.Property(e => e.PlexDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PlexStatus)
                     .HasMaxLength(10)
@@ -263,6 +285,8 @@ namespace PlexMediaControl.Models.MariaDB
                 entity.Property(e => e.Id).HasColumnType("int(11)");
 
                 entity.Property(e => e.TvmShowId).HasColumnType("int(11)");
+
+                entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<LastShowEvaluated>(entity =>
@@ -305,7 +329,7 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.CleanedName).HasMaxLength(100);
 
-                entity.Property(e => e.FinderDate).HasMaxLength(10);
+                entity.Property(e => e.FinderDate).HasColumnType("datetime");
 
                 entity.Property(e => e.MediaType).HasMaxLength(10);
 
@@ -329,9 +353,13 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.ToView("nobroadcastdate");
 
+                entity.Property(e => e.BroadcastDate).HasColumnType("datetime");
+
                 entity.Property(e => e.Episode).HasColumnType("int(11)");
 
                 entity.Property(e => e.Id).HasColumnType("int(11)");
+
+                entity.Property(e => e.PlexDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PlexStatus)
                     .HasMaxLength(10)
@@ -349,7 +377,9 @@ namespace PlexMediaControl.Models.MariaDB
                     .HasMaxLength(255)
                     .HasDefaultValueSql("' '");
 
-                entity.Property(e => e.UpdateDate).HasDefaultValueSql("curdate()");
+                entity.Property(e => e.UpdateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("curdate()");
             });
 
             modelBuilder.Entity<Notinfollowed>(entity =>
@@ -415,13 +445,13 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.PlexShowName).HasMaxLength(100);
 
-                entity.Property(e => e.PlexWatchedDate).HasMaxLength(10);
+                entity.Property(e => e.PlexWatchedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.TvmEpisodeId).HasColumnType("int(11)");
 
                 entity.Property(e => e.TvmShowId).HasColumnType("int(11)");
 
-                entity.Property(e => e.UpdateDate).HasMaxLength(10);
+                entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Show>(entity =>
@@ -512,7 +542,7 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.ShowName).HasMaxLength(150);
 
-                entity.Property(e => e.UpdateDate).HasMaxLength(10);
+                entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Url).HasMaxLength(1500);
             });
@@ -631,7 +661,9 @@ namespace PlexMediaControl.Models.MariaDB
 
                 entity.Property(e => e.TvmShowId).HasColumnType("int(11)");
 
-                entity.Property(e => e.TvmUpdateDate).HasDefaultValueSql("'1900-01-01'");
+                entity.Property(e => e.TvmUpdateDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("'1900-01-01 00:00:00'");
 
                 entity.Property(e => e.TvmUpdateEpoch).HasColumnType("int(11)");
             });

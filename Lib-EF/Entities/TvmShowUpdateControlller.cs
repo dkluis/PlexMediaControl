@@ -69,7 +69,7 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         var resp = new Response();
         if (TvmShowId == 0) resp.ErrorMessage += "No TvmShowId Found, ";
         if (TvmUpdateEpoch == 0) resp.InfoMessage += "TvmUpdateEpoch was zero, ";
-        if (TvmUpdateDate == DateOnly.Parse("0001/01/01")) TvmUpdateDate = DateOnly.Parse(DateTime.Now.ToShortDateString());
+        if (TvmUpdateDate == new DateTime(0001, 01, 01, 0, 0, 0)) TvmUpdateDate = DateTime.Now;
         if (resp.ErrorMessage == null) resp.Success = true;
         return resp;
     }

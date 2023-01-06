@@ -8,11 +8,6 @@ namespace APIs.Controllers;
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    private static readonly string[] Summaries =
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<TestController> _logger;
 
     public TestController(ILogger<TestController> logger)
@@ -20,33 +15,19 @@ public class TestController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetTest")]
-    public Show Get()
+    [HttpGet("Show/Single{id:int}")]
+    public ActionResult<Show> GetSingle(int id)
     {
         using var db = new TvMaze();
-        var show = db.Shows.Single(s => s.Id == 1);
+        var show = db.Shows.Single(s => s.Id == id);
         return show;
-        /*return new Show
-        {
-            Id = 0,
-            TvmShowId = 0,
-            TvmStatus = "Status",
-            TvmUrl = "Url",
-            ShowName = "ShowName",
-            ShowStatus = "ShowStatus",
-            PremiereDate = new DateTime(2023-01-01),
-            Finder = "Finder",
-            MediaType = "MediaType",
-            CleanedShowName = "Clean",
-            AltShowname = "Alt",
-            UpdateDate = new DateTime(2023-01-01)
-        };*/
-        // return new ActionItem
-        // {
-        //     Id = 0,
-        //     Program = "Program",
-        //     Message = "Message",
-        //     UpdateDateTime = DateTime.Now,
-        // };
+    }
+
+    [HttpGet("Show/All")]
+    public ActionResult<IEnumerable<Show>> GetAll()
+    {
+        using var db = new TvMaze();
+        var shows = db.Shows.Take(25).ToArray();
+        return shows;
     }
 }

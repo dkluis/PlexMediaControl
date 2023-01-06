@@ -141,7 +141,7 @@ public class ShowController : Show, IDisposable
                 using var tvmShowUpdateController = new TvmShowUpdateController();
                 tvmShowUpdateController.TvmShowId = TvmShowId;
                 tvmShowUpdateController.TvmUpdateEpoch = TvmShowInfo.Updated;
-                tvmShowUpdateController.TvmUpdateDate = DateOnly.Parse(DateTime.Now.ToShortDateString());
+                tvmShowUpdateController.TvmUpdateDate = DateTime.Now;
                 var resultAddTsu = tvmShowUpdateController.Add();
                 if (!resultAddTsu.Success)
                 {
@@ -158,7 +158,7 @@ public class ShowController : Show, IDisposable
             {
                 using var followedController = new FollowedController();
                 followedController.TvmShowId = TvmShowId;
-                followedController.UpdateDate = DateOnly.FromDateTime(UpdateDate);
+                followedController.UpdateDate = UpdateDate;
                 var resultAddFol = followedController.Add();
                 if (!resultAddFol.Success)
                 {

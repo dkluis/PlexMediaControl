@@ -12,8 +12,8 @@ namespace PlexMediaControl.Models.MariaDB
         public int PlexSeasonNum { get; set; }
         public int PlexEpisodeNum { get; set; }
         public string PlexSeasonEpisode { get; set; } = null!;
-        public string PlexWatchedDate { get; set; } = null!;
+        public DateTime PlexWatchedDate { get; set; }
         public bool ProcessedToTvmaze { get; set; }
-        public string UpdateDate { get; set; } = null!;
+        public DateTime UpdateDate { get; set; }
     }
 }
