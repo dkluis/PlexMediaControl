@@ -298,7 +298,7 @@ foreach (var show in showsToUnfollow)
 //     foreach (var show in showList)
 //         log.Write($"Found {show.TvmShowId} {show.ShowName}, {show.AltShowname}, {show.CleanedShowName} {show.ShowStatus} {show.PremiereDate} {show.UpdateDate}");
 
-using var showController = new ShowController(appInfo)
+using var showController = new ShowEntity(appInfo)
 {
     TvmShowId = 83,
     TvmStatus = "Skipping"

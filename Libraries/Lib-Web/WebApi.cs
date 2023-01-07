@@ -38,7 +38,7 @@ public class WebApi : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public static JObject ConvertHttpToJObject(HttpResponseMessage message)
+    public JObject ConvertHttpToJObject(HttpResponseMessage message)
     {
         var content = message.Content.ReadAsStringAsync().Result;
         if (string.IsNullOrEmpty(content))

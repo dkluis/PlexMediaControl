@@ -6,13 +6,12 @@ using Web_Lib;
 
 namespace PlexMediaControl.Entities;
 
-public class ShowController : Show, IDisposable
+public class ShowEntity : Show, IDisposable
 {
-    public ShowController(AppInfo appInfo)
+    public ShowEntity(AppInfo appInfo)
     {
         AppInfo = appInfo;
     }
-
     private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new();
 
@@ -27,11 +26,25 @@ public class ShowController : Show, IDisposable
         try
         {
             using var db = new TvMaze();
-            var show = getEpisodes ? db.Shows.Include(m => m.MediaType).Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.Include(m => m.MediaType).SingleOrDefault(s => s.TvmShowId == showId);
+            var show = getEpisodes ? db.Shows.Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
             {
+                CopyShow(show);
                 resp.Success = true;
-                resp.ResponseObject = show;
+                resp.ResponseObject = this;
+                
+                if (!getTvmInfo) return resp;
+
+                var result = GetTvmShowInfo(showId);
+                if (result.Success)
+                {
+                    resp.ResponseObject = this;
+                    return resp;
+                }
+
+                resp.Success = false;
+                resp.Message += "Trying to get TvMaze Info";
+                resp.ErrorMessage += result.ErrorMessage;
             }
             else
             {
@@ -45,15 +58,7 @@ public class ShowController : Show, IDisposable
             resp.Message = "Db operation error";
             resp.ErrorMessage = $"{resp.Message}: {e.Message} {e.InnerException}";
         }
-
-        if (!getTvmInfo) return resp;
-
-        var result = GetTvmShowInfo();
-        if (result.Success) return resp;
-
-        resp.Success = false;
-        resp.Message += "Trying to get TvMaze Info";
-        resp.ErrorMessage += result.ErrorMessage;
+        
         return resp;
     }
 
@@ -108,7 +113,7 @@ public class ShowController : Show, IDisposable
             }
 
             // Get TvMaze Info on the show
-            var resultGet = GetTvmShowInfo();
+            var resultGet = GetTvmShowInfo(TvmShowId);
             if (!resultGet.Success)
             {
                 resp.ErrorMessage = $"Could not get the Show {TvmShowId} from TvMaze {resultGet.ErrorMessage}";
@@ -118,7 +123,7 @@ public class ShowController : Show, IDisposable
             ShowName = TvmShowInfo.Name;
             TvmUrl = TvmShowInfo.Url;
             TvmStatus = TvmShowInfo.Status;
-            PremiereDate = TvmShowInfo.PremiereDate.ToDateTime(TimeOnly.MinValue);
+            PremiereDate = TvmShowInfo.PremiereDate;
             if (string.IsNullOrEmpty(MediaType)) MediaType = "TS";
             if (string.IsNullOrEmpty(Finder)) Finder = "Multi";
             if (string.IsNullOrEmpty(ShowStatus) && Finder != "Skip")
@@ -193,7 +198,7 @@ public class ShowController : Show, IDisposable
             resp.ErrorMessage = $"{e.Message}, {e.InnerException}";
             var aiRec = new ActionItem
             {
-                Program = "ShowController",
+                Program = "ShowEntity",
                 Message = $"Db Failure {TvmShowId} {ShowName} {e.Message} {e.InnerException}"
             };
             var result = ActionItemController.Record(aiRec);
@@ -209,12 +214,12 @@ public class ShowController : Show, IDisposable
         return resp;
     }
 
-    private Response GetTvmShowInfo()
+    private Response GetTvmShowInfo(int showId)
     {
         var resp = new Response();
 
         using WebApi tvmApi = new(AppInfo);
-        var showJson = WebApi.ConvertHttpToJObject(tvmApi.GetShow(TvmShowId));
+        var showJson = tvmApi.ConvertHttpToJObject(tvmApi.GetShow(showId));
 
         if (showJson.Count == 0)
         {
@@ -230,28 +235,46 @@ public class ShowController : Show, IDisposable
         resp.ErrorMessage += showJson["status"] == null ? "Status was null, " : "";
         if (!string.IsNullOrEmpty(resp.ErrorMessage)) return resp;
 
-        var premDate = DateOnly.Parse("1900-01-01");
-        if (showJson["premiered"] != null) premDate = DateOnly.Parse(showJson["premiered"]!.ToString());
-        var endDate = DateOnly.Parse("2300-01-01");
-        if (showJson["ended"] != null) endDate = DateOnly.Parse(showJson["ended"]!.ToString());
-
-        TvmShowInfo.Id = int.Parse(showJson["id"]!.ToString());
+        TvmShowInfo!.Id = int.Parse(showJson["id"]!.ToString());
         TvmShowInfo.Url = showJson["url"]!.ToString();
         TvmShowInfo.Name = showJson["name"]!.ToString();
-        TvmShowInfo.Language = showJson["language"]?.ToString();
+        TvmShowInfo.Language = !string.IsNullOrEmpty(showJson["language"]?.ToString()) ? showJson["language"]!.ToString() : string.Empty;
         TvmShowInfo.Updated = int.Parse(showJson["updated"]!.ToString());
-        TvmShowInfo.Status = showJson["status"]!.ToString();
-        TvmShowInfo.Country = showJson["network"]?["country"]?["name"]?.ToString();
-        TvmShowInfo.CountryCode = showJson["network"]?["country"]?["code"]?.ToString();
-        TvmShowInfo.Type = showJson["type"]?.ToString();
-        TvmShowInfo.Network = showJson["network"]?["name"]?.ToString();
-        TvmShowInfo.NetworkUrl = showJson["network"]?["officialSite"]?.ToString();
-        TvmShowInfo.RunTime = int.Parse(showJson["runtime"]?.ToString() ?? string.Empty);
-        TvmShowInfo.EndDate = endDate;
-        PremiereDate = premDate.ToDateTime(TimeOnly.MinValue);
+        TvmShowInfo.Status = !string.IsNullOrEmpty(showJson["status"]?.ToString()) ? showJson["status"]!.ToString() : string.Empty;
+        TvmShowInfo.Type = !string.IsNullOrEmpty(showJson["type"]?.ToString()) ? showJson["type"]!.ToString() : string.Empty;
+        
+        if (!string.IsNullOrEmpty(showJson["network"]?.ToString()))
+        {
+            if (!string.IsNullOrEmpty(showJson["network"]!["country"]?.ToString()))
+            {
+                TvmShowInfo.Country = !string.IsNullOrEmpty(showJson["network"]!["country"]!["name"]?.ToString()) ? showJson["network"]!["country"]!["name"]!.ToString() : string.Empty;
+                TvmShowInfo.CountryCode = !string.IsNullOrEmpty(showJson["network"]!["country"]!["code"]?.ToString()) ? showJson["network"]!["country"]!["code"]!.ToString() : string.Empty;
+            }
+            TvmShowInfo.Network = showJson["network"]!["name"]?.ToString();
+            TvmShowInfo.NetworkUrl = showJson["network"]!["officialSite"]?.ToString();
+        }
+        TvmShowInfo.RunTime =  !string.IsNullOrEmpty(showJson["runtime"]?.ToString()) ? int.Parse(showJson["runtime"]!.ToString()) : 0;
+        TvmShowInfo.EndDate = !string.IsNullOrEmpty(showJson["ended"]?.ToString()) ? DateTime.Parse(showJson["ended"]!.ToString()) : new DateTime(2300,01,01, 0, 0, 0);
+        TvmShowInfo.PremiereDate = !string.IsNullOrEmpty(showJson["premiered"]?.ToString()) ? DateTime.Parse(showJson["premiered"]!.ToString()) : new DateTime(1900,01,01, 0, 0, 0);
 
         resp.Success = true;
         return resp;
+    }
+
+    private void CopyShow(Show show)
+    {
+        Id = show.Id;
+        TvmShowId = show.TvmShowId;
+        TvmStatus = show.ShowStatus;
+        TvmUrl = show.TvmUrl;
+        ShowName = show.ShowName;
+        ShowStatus = show.ShowStatus;
+        PremiereDate = show.PremiereDate;
+        Finder = show.Finder;
+        MediaType = show.MediaType;
+        CleanedShowName = show.CleanedShowName;
+        AltShowname = show.AltShowname;
+        UpdateDate = show.UpdateDate;
     }
 
     private Response Valid()

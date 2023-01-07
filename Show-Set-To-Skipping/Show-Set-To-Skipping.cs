@@ -15,7 +15,7 @@ log.Start();
 
 var showId = 57680;
 log.Elapsed();
-using var showController = new ShowController(appInfo);
+using var showController = new ShowEntity(appInfo);
 var response = showController.Get(showId, getEpisodes: true);
 var showRec = response.ResponseObject as Show;
 var epiWatched = showRec!.Episodes.Where(e => e.PlexStatus == "Acquired");
