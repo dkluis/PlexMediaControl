@@ -8,11 +8,6 @@ var log = appInfo.TxtFile;
 
 log.Start();
 
-// var argsToUse = CommandLineArgs.PrintArgs(program);
-// if (argsToUse.Count < 1) Environment.Exit(99);
-// var showId = "";
-// if (argsToUse.TryGetValue("showId", out showId) == null) Environment.Exit(88); 
-
 var showId = 57680;
 log.Elapsed();
 using var showController = new ShowEntity(appInfo);

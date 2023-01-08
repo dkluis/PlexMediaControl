@@ -12,6 +12,36 @@ public class FollowedController : Followed, IDisposable
     public Response Add()
     {
         var resp = new Response();
+        UpdateDate = DateTime.Now;
+        var validResp = Valid();
+        if (!validResp.Success)
+        {
+            resp.InfoMessage = "Validation Followed Record fields";
+            resp.ErrorMessage = validResp.ErrorMessage;
+            return resp;
+        }
+
+        try
+        {
+            using var db = new TvMaze();
+            db.Add(this);
+            db.SaveChanges();
+        }
+        catch (Exception e)
+        {
+            resp.ErrorMessage = $"Error with Adding Followed Record for {TvmShowId} {e.Message} {e.InnerException}";
+            return resp;
+        }
+
+        resp.Success = true;
+        return resp;
+    }
+
+    private Response Valid()
+    {
+        var resp = new Response();
+        if (TvmShowId == 0) resp.ErrorMessage += "TvmShowId is not set";
+        if (string.IsNullOrEmpty(resp.ErrorMessage)) resp.Success = true;
 
         return resp;
     }

@@ -9,7 +9,7 @@ public class AppInfo
     private readonly string _fullPath;
     private readonly string[] _mediaExtensions;
 
-    public AppInfo(string application, string program, string dbConnection = "DbProduction")
+    public AppInfo(string application, string program, int logLevel = 999, string dbConnection = "DbProduction")
     {
         _drive = Common.EnvInfo.Drive;
         var homeDir = Common.EnvInfo.Os == "Windows"
@@ -35,7 +35,7 @@ public class AppInfo
             Environment.Exit(666);
         }
 
-        LogLevel = int.Parse(Common.FindInArray(configFullPath, "LogLevel"));
+        LogLevel = logLevel == 999 ? int.Parse(Common.FindInArray(configFullPath, "LogLevel")) : logLevel;
 
         var fileName = program + ".log";
         var filePath = Path.Combine(homeDir, "Logs");

@@ -5,10 +5,13 @@ namespace Common_Lib;
 
 public class CommandLineArgs : IDisposable
 {
+    public bool Success { get; set; }
+    private Dictionary<string, string> Args { get; set; } = new();
+    
     public CommandLineArgs(string executable = " ")
     {
         var cliArgs = Environment.GetCommandLineArgs();
-        if (cliArgs.Length <= 1) return;
+        if (cliArgs.Length < 1) return;
 
         if (!cliArgs[0].ToLower().Contains(executable.ToLower())) return;
         for (var i = 1; i < cliArgs.Length; i++)
@@ -21,9 +24,6 @@ public class CommandLineArgs : IDisposable
         Success = true;
     }
 
-    public Dictionary<string, string> Args { get; set; } = new();
-    public bool Success { get; set; }
-
     void IDisposable.Dispose()
     {
         GC.SuppressFinalize(this);
@@ -33,11 +33,24 @@ public class CommandLineArgs : IDisposable
     {
         try
         {
-            return Args[key];
+            return string.IsNullOrEmpty(Args[key]) ? Args[key] : string.Empty;
         }
         catch (Exception e)
         {
             return $"{key} not found {e.Message}";
+        }
+    }
+
+    public int GetLogLevel()
+    {
+        try
+        {
+            var checkLl = string.IsNullOrEmpty(Args["ll"]) ? Args["key"] : string.Empty;
+            return string.IsNullOrEmpty(checkLl) ? 9 : int.Parse(checkLl);
+        }
+        catch (Exception)
+        {
+            return 999999;
         }
     }
 }

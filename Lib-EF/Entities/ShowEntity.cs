@@ -122,13 +122,13 @@ public class ShowEntity : Show, IDisposable
 
             ShowName = TvmShowInfo.Name;
             TvmUrl = TvmShowInfo.Url;
-            TvmStatus = TvmShowInfo.Status;
+            ShowStatus = TvmShowInfo.Status;
             PremiereDate = TvmShowInfo.PremiereDate;
             if (string.IsNullOrEmpty(MediaType)) MediaType = "TS";
             if (string.IsNullOrEmpty(Finder)) Finder = "Multi";
-            if (string.IsNullOrEmpty(ShowStatus) && Finder != "Skip")
-                ShowStatus = "Following";
-            else if (Finder == "Skip") ShowStatus = "Skipping";
+            if (string.IsNullOrEmpty(TvmStatus) && Finder != "Skip")
+                TvmStatus = "Following";
+            else if (Finder == "Skip") TvmStatus = "Skipping";
 
             // Validate the Show for insert in the DB
             var validResp = Valid();
@@ -157,6 +157,10 @@ public class ShowEntity : Show, IDisposable
                     resp.InfoMessage = "tvmShowUpdate";
                 }
             }
+            else
+            {
+                // ToDo Update the Epoch date, etc.
+            }
 
             // Handle the needed Followed record
             if (followedExist == null)
@@ -180,7 +184,7 @@ public class ShowEntity : Show, IDisposable
             {
                 TvmStatus = "Skipping";
                 Finder = "Skip";
-                UpdateDate = new DateTime(2200-01-01);
+                UpdateDate = new DateTime(2200,01,01,0,0,0);
             }
             else
             {
@@ -210,6 +214,13 @@ public class ShowEntity : Show, IDisposable
         resp.Success = true;
         resp.Message = $"Show record is created {TvmShowId} {ShowName}";
         resp.InfoMessage = "";
+
+        return resp;
+    }
+
+    public Response Delete()
+    {
+        var resp = new Response();
 
         return resp;
     }
@@ -285,7 +296,7 @@ public class ShowEntity : Show, IDisposable
         if (string.IsNullOrEmpty(TvmStatus)) resp.ErrorMessage += "No TvmStatus Found, ";
         if (string.IsNullOrEmpty(TvmUrl)) resp.ErrorMessage += "No TvmUrl Found, ";
         if (string.IsNullOrEmpty(ShowStatus)) resp.ErrorMessage += "No ShowStatus Found, ";
-        if (PremiereDate == new DateTime(0001-01-01)) resp.ErrorMessage += "No PremiereDate Found, ";
+        if (PremiereDate == new DateTime(0001,01,01,0,0,0)) resp.ErrorMessage += "No PremiereDate Found, ";
         if (string.IsNullOrEmpty(Finder)) resp.ErrorMessage += "No Finder Found, ";
         if (string.IsNullOrEmpty(MediaType)) resp.ErrorMessage += "No MediaType Found, ";
 

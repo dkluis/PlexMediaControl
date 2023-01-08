@@ -51,7 +51,7 @@ public class WebApi : IDisposable
         return jObject;
     }
 
-    public static JArray ConvertHttpToJArray(HttpResponseMessage message)
+    public JArray ConvertHttpToJArray(HttpResponseMessage message)
     {
         var content = message.Content.ReadAsStringAsync().Result;
         if (string.IsNullOrEmpty(content))
@@ -347,14 +347,14 @@ public class WebApi : IDisposable
         return _httpResponse;
     }
 
-    public HttpResponseMessage GetFollowedShows()
+    public JArray GetFollowedShows()
     {
         SetTvmazeUser();
         var api = "follows/shows";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUserUrl}{api}", "WebAPI GFS", 4);
 
-        return _httpResponse;
+        return ConvertHttpToJArray(_httpResponse);
     }
 
     public bool CheckForFollowedShow(int showId)
