@@ -52,7 +52,7 @@ Environment.Exit(0);*/
 
 /*bool DeleteEpisodeFiles()
 {
-    var ai = new ActionItemController();
+    var ai = new ActionItemEntity();
     var directory = GetMediaDirectory(showRec.MediaType);
     var showName = showRec.AltShowname != ""
         ? showRec.AltShowname

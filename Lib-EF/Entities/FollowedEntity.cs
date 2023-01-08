@@ -2,7 +2,7 @@ using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
 
-public class FollowedController : Followed, IDisposable
+public class FollowedEntity : Followed, IDisposable
 {
     void IDisposable.Dispose()
     {
@@ -13,7 +13,7 @@ public class FollowedController : Followed, IDisposable
     {
         var resp = new Response();
         UpdateDate = DateTime.Now;
-        var validResp = Valid();
+        var validResp = Validate();
         if (!validResp.Success)
         {
             resp.InfoMessage = "Validation Followed Record fields";
@@ -37,7 +37,7 @@ public class FollowedController : Followed, IDisposable
         return resp;
     }
 
-    private Response Valid()
+    private Response Validate()
     {
         var resp = new Response();
         if (TvmShowId == 0) resp.ErrorMessage += "TvmShowId is not set";

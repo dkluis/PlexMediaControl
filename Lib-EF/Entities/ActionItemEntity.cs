@@ -2,7 +2,7 @@ using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
 
-public abstract class ActionItemController : IDisposable
+public abstract class ActionItemEntity :ActionItem, IDisposable
 {
     void IDisposable.Dispose()
     {
@@ -36,10 +36,8 @@ public abstract class ActionItemController : IDisposable
 
     private static bool Validate(ActionItem check)
     {
-        var result = true;
-        if (string.IsNullOrEmpty(check.Message))
-            result = false;
-        else if (string.IsNullOrEmpty(check.Program)) result = false;
+        var result = !string.IsNullOrEmpty(check.Message);
+        if (string.IsNullOrEmpty(check.Program)) result = false;
 
         return result;
     }

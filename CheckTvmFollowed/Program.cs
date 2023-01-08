@@ -36,7 +36,7 @@ else
         using var showEntity = new ShowEntity(appInfo);
         showEntity.TvmShowId = int.Parse(tvmShow["show_id"]!.ToString());
         var result = showEntity.Add();
-        if (!result.Success) log.Write($"Error Adding the Show: {showEntity.TvmShowId} {result.ErrorMessage}");
+        if (!result.Success) log.Write($"Error Adding the Show: {showEntity.TvmShowId} {result.Message} {result.InfoMessage} {result.ErrorMessage}");
     }
     
     
@@ -52,10 +52,4 @@ else
 
 log.Elapsed();
 log.Stop();
-
-void AddShowToPlex(int tvmShowId)
-{
-    
-}
-
 

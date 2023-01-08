@@ -10,7 +10,7 @@ public class ShowEntity : Show, IDisposable
 {
     public ShowEntity(AppInfo appInfo)
     {
-        AppInfo = appInfo;
+        this.AppInfo = appInfo;
     }
     private AppInfo AppInfo { get; }
     public TvmShow TvmShowInfo { get; set; } = new();
@@ -100,7 +100,7 @@ public class ShowEntity : Show, IDisposable
         using var db = new TvMaze();
         var showExist = db.Shows.SingleOrDefault(s => s.TvmShowId == TvmShowId);
         var followedExist = db.Followeds.SingleOrDefault(f => f.TvmShowId == TvmShowId);
-        var tvmShowUpdates = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
+        var tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
 
         try
         {
@@ -131,7 +131,7 @@ public class ShowEntity : Show, IDisposable
             else if (Finder == "Skip") TvmStatus = "Skipping";
 
             // Validate the Show for insert in the DB
-            var validResp = Valid();
+            var validResp = Validate();
             if (!validResp.Success)
             {
                 resp.Success = false;
@@ -141,7 +141,7 @@ public class ShowEntity : Show, IDisposable
             }
 
             // Handle the needed tvmShowUpdate record
-            if (tvmShowUpdates == null)
+            if (tvmShowUpdateExist == null)
             {
                 using var tvmShowUpdateController = new TvmShowUpdateController();
                 tvmShowUpdateController.TvmShowId = TvmShowId;
@@ -155,6 +155,14 @@ public class ShowEntity : Show, IDisposable
                     resp.InfoMessage = resultAddTsu.InfoMessage;
                     resp.ErrorMessage = resultAddTsu.ErrorMessage;
                     resp.InfoMessage = "tvmShowUpdate";
+                    var result = ActionItemEntity.Record(new ActionItem
+                    {
+                        Program = "ShowEntity Add",
+                        Message = $"Db Error Updating the TvmShowUpdate record for {TvmShowId} {ShowName}",
+                        UpdateDateTime = DateTime.Now,
+                    });
+                    if (!result.Success) resp.ErrorMessage += $" *** ActionItem Db Error {result.ErrorMessage}";
+
                 }
             }
             else
@@ -165,17 +173,28 @@ public class ShowEntity : Show, IDisposable
             // Handle the needed Followed record
             if (followedExist == null)
             {
-                using var followedController = new FollowedController();
+                using var followedController = new FollowedEntity();
                 followedController.TvmShowId = TvmShowId;
                 followedController.UpdateDate = UpdateDate;
                 var resultAddFol = followedController.Add();
                 if (!resultAddFol.Success)
                 {
                     resp.Success = false;
-                    resp.Message = "FollowedController " + resultAddFol.Message;
+                    resp.Message = "FollowedEntity " + resultAddFol.Message;
                     resp.InfoMessage = resultAddFol.InfoMessage;
                     resp.ErrorMessage = resultAddFol.ErrorMessage;
                     resp.InfoMessage = "tvmShowUpdate";
+                    
+                    var result = ActionItemEntity.Record(new ActionItem
+                    {
+                        Program = "ShowEntity Add",
+                        Message = $"Db Error Updating the Followed record for {TvmShowId} {ShowName}",
+                        UpdateDateTime = DateTime.Now,
+                    });
+                    if (!result.Success) resp.ErrorMessage += $" *** ActionItem Db Error {result.ErrorMessage}";
+                    
+                    return resp;
+                    
                 }
             }
 
@@ -200,17 +219,31 @@ public class ShowEntity : Show, IDisposable
             resp.Success = false;
             resp.Message = "Exception Error";
             resp.ErrorMessage = $"{e.Message}, {e.InnerException}";
-            var aiRec = new ActionItem
+          
+            var result = ActionItemEntity.Record(new ActionItem
             {
-                Program = "ShowEntity",
-                Message = $"Db Failure {TvmShowId} {ShowName} {e.Message} {e.InnerException}"
-            };
-            var result = ActionItemController.Record(aiRec);
-            if (!result.Success) resp.ErrorMessage += $" Action Write also failed {result.ErrorMessage}";
+                Program = "ShowEntity Add",
+                Message = $"Db Error Updating the TvmShowUpdate record for {TvmShowId} {ShowName}",
+                UpdateDateTime = DateTime.Now,
+            });
+            if (!result.Success) resp.ErrorMessage += $" *** ActionItem Db Error {result.ErrorMessage}";
 
             return resp;
         }
 
+        var skipping = Finder == "Skip" || TvmStatus == "Skipping";
+        var episodesResult = EpisodeEntity.UpdateAllEpisodes(TvmShowId, skipping);
+        if (!episodesResult.Success)
+        {
+            var result = ActionItemEntity.Record(new ActionItem
+            {
+                Program = "ShowEntity Add",
+                Message = $"Errors during the Episodes Update record for {TvmShowId} {ShowName}",
+                UpdateDateTime = DateTime.Now,
+            });
+            if (!result.Success) resp.ErrorMessage += $" *** ActionItem Db Error {result.ErrorMessage}";
+        }
+        
         resp.Success = true;
         resp.Message = $"Show record is created {TvmShowId} {ShowName}";
         resp.InfoMessage = "";
@@ -288,7 +321,7 @@ public class ShowEntity : Show, IDisposable
         UpdateDate = show.UpdateDate;
     }
 
-    private Response Valid()
+    private Response Validate()
     {
         var resp = new Response();
         if (TvmShowId == 0) resp.ErrorMessage += "No TvmShowId Found, ";
