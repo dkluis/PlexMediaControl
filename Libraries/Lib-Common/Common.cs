@@ -187,3 +187,17 @@ public static class Common
         }
     }
 }
+    
+public class FunctionResult
+{
+    public bool IsSuccess { get; set; }
+    public string Message { get; set; }
+    public string ErrorMessage { get; set; }
+
+    public FunctionResult()
+    {
+        IsSuccess = false;
+        Message = "";
+        ErrorMessage = "";
+    }
+}

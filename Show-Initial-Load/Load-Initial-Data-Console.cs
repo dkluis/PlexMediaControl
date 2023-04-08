@@ -1,4 +1,8 @@
-﻿using Common_Lib;
+﻿using System.Security.AccessControl;
+using Common_Lib;
+using Lib_SqlDB;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using PlexMediaControl.Entities;
 using PlexMediaControl.Models.MariaDB;
@@ -10,16 +14,62 @@ var log = appInfo.TxtFile;
 
 log.Start();
 
-log.Write("Starting FindOutWhatShowsToLoad");
-Functions.FindOutWhatShowsToLoad(appInfo);
-log.Write("Stopped FindOutWhatShowsToLoad");
+// log.Write("Starting FindOutWhatShowsToLoad");
+// Functions.FindOutWhatShowsToLoad(appInfo);
+// log.Write("Stopped FindOutWhatShowsToLoad");
+
+var function = "Load Base Data";
+log.Write($"Starting function: {function} ");
+var result = Functions.LoadBaseData(appInfo);
+Console.WriteLine(result.Message);
+log.Write($"Stopped: {function}");
 
 
 log.Stop();
 
 internal static class Functions
 {
-    internal static void FindOutWhatShowsToLoad(AppInfo appInfo)
+    internal static FunctionResult LoadBaseData(AppInfo appInfo)
+    {
+        var log = appInfo.TxtFile;
+        var result = new FunctionResult();
+        var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
+        var db = new TvMaze();
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From TvmStatuses");
+                while (rdr.Read())
+                {
+                    var rec = db.TvmStatuses.SingleOrDefault(t => t.TvmStatus1 == (string) rdr[0]);
+                    if (rec == null)
+                    {
+                        var newRec = new TvmStatus() {TvmStatus1 = (string) rdr[0]};
+                        log.Write($"Added TvmStatus: {newRec.TvmStatus1}");
+                        result.Message += $"Added: {newRec.TvmStatus1}, ";
+                        db.TvmStatuses.Add(newRec);
+                        db.SaveChanges();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+        }
+
+        result.IsSuccess = true;
+        return result;
+    }
+}
+
+
+#region SomeFunction
+
+/*internal static void FindOutWhatShowsToLoad(AppInfo appInfo)
     {
         var log = appInfo.TxtFile;
         JArray myEpisodeJArray;
@@ -72,10 +122,9 @@ internal static class Functions
         appInfo.TxtFile.Write($"Counts are: All {allShows.Count} and Unique {uniqueShows.Count} ");
 
         log.Write($"{uniqueShows}");
-    }
-}
+    }*/
 
-
+#endregion
 
 #region Process All shows to load
 
