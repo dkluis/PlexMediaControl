@@ -1,68 +1,81 @@
 ﻿using Common_Lib;
+using Newtonsoft.Json.Linq;
 using PlexMediaControl.Entities;
+using PlexMediaControl.Models.MariaDB;
+using Web_Lib;
 
-var appInfo = new AppInfo("PlexMediaControl", "Load Skipped Shows");
+var appInfo = new AppInfo("PlexMediaControl", "Load Initial Data");
 appInfo.LogLevel = 5;
 var log = appInfo.TxtFile;
 
 log.Start();
 
-#region Find Out What Shows to Load
+log.Write("Starting FindOutWhatShowsToLoad");
+Functions.FindOutWhatShowsToLoad(appInfo);
+log.Write("Stopped FindOutWhatShowsToLoad");
 
-/*
-var myEpisodeJArray = new JArray();
-using (WebApi tvmApi = new(appInfo))
+
+log.Stop();
+
+internal static class Functions
 {
-    myEpisodeJArray = tvmApi.ConvertHttpToJArray(tvmApi.GetAllMyEpisodes());
-};
-
-var allShows = new List<int>();
-foreach (var episode in myEpisodeJArray)
-{
-    using WebApi tvmApiAlt = new(appInfo);
-    var epiId = 0;
-    epiId = int.Parse(episode["episode_id"]!.ToString());
-    if (epiId <= 49775) continue;
-    
-    using var db = new TvMazeNewDbContext();
-    var episodeExists = db.Episodes.SingleOrDefault(e => e.TvmEpisodeId == epiId);
-    if (episodeExists != null) continue;
-    
-    var showContent = tvmApiAlt.ConvertHttpToJObject(tvmApiAlt.GetEpisode(epiId));
-    var showId = int.Parse(showContent["_embedded"]!["show"]!["id"]!.ToString());
-    var cont = true;
-
-    if (allShows.Count > 0)
+    internal static void FindOutWhatShowsToLoad(AppInfo appInfo)
     {
-        cont = true;
-        foreach (var show in allShows)
+        var log = appInfo.TxtFile;
+        JArray myEpisodeJArray;
+        using (WebApi tvmApi = new(appInfo))
         {
-            if (show == showId)
-            {
-                cont = false;
-                break;
-            };
+            myEpisodeJArray = tvmApi.ConvertHttpToJArray(tvmApi.GetAllMyEpisodes());
         }
+
+        var allShows = new List<int>();
+        foreach (var episode in myEpisodeJArray)
+        {
+            using WebApi tvmApiAlt = new(appInfo);
+            var epiId = 0;
+            epiId = int.Parse(episode["episode_id"]!.ToString());
+            //if (epiId <= 49775) continue;
+
+            using var db = new TvMaze();
+            var episodeExists = db.Episodes.SingleOrDefault(e => e.TvmEpisodeId == epiId);
+            if (episodeExists != null) continue;
+
+            var showContent = tvmApiAlt.ConvertHttpToJObject(tvmApiAlt.GetEpisode(epiId));
+            var showId = int.Parse(showContent["_embedded"]!["show"]!["id"]!.ToString());
+            var cont = true;
+
+            if (allShows.Count > 0)
+            {
+                cont = true;
+                foreach (var show in allShows)
+                {
+                    if (show == showId)
+                    {
+                        cont = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!cont) continue;
+
+            log.Write($"Processing Show for Epi: {epiId} for Show {showContent["_embedded"]!["show"]!["id"]}");
+
+            allShows.Add(showId);
+
+
+            var showExists = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+            if (showExists == null) log.Write($"####################   Need to Add TVMaze ShowId: {showId}");
+        }
+
+        var uniqueShows = allShows.GroupBy(i => i).Select(i => i).ToList();
+        appInfo.TxtFile.Write($"Counts are: All {allShows.Count} and Unique {uniqueShows.Count} ");
+
+        log.Write($"{uniqueShows}");
     }
-    if (!cont) continue;
-    
-    //log.Write($"Processing Show for Epi: {epiId} for Show {showContent["_embedded"]!["show"]!["id"]}");
-    
-    allShows.Add(showId);
-
-
-    var showExists = db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
-    if (showExists == null) log.Write($"####################   Need to Add TVMaze ShowId: {showId}"); 
-
 }
 
-var uniqueShows = allShows.GroupBy(i => i).Select(i => i).ToList();
-log.Write($"Counts are: All {allShows.Count} and Unique {uniqueShows.Count} ");
 
-log.Write($"{uniqueShows}");
-*/
-
-#endregion
 
 #region Process All shows to load
 
@@ -296,18 +309,19 @@ foreach (var show in showsToUnfollow)
 // //var showFound = showList.Where(s => s.PremiereDate == premiereDate);
 // if (showList != null)
 //     foreach (var show in showList)
-//         log.Write($"Found {show.TvmShowId} {show.ShowName}, {show.AltShowname}, {show.CleanedShowName} {show.ShowStatus} {show.PremiereDate} {show.UpdateDate}");
+//        log.Write($"Found {show.TvmShowId} {show.ShowName}, {show.AcquireShowname}, {show.PlexShowname} {show.CleanedShowName} {show.ShowStatus} {show.PremiereDate} {show.UpdateDate}");
 
-using var showController = new ShowEntity(appInfo)
-{
-    TvmShowId = 83,
-    TvmStatus = "Skipping"
-};
-
-var response = showController.Add();
-
-log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
+// using var showController = new ShowEntity(appInfo)
+// {
+//     TvmShowId = 83,
+//     TvmStatus = "Skipping"
+// };
+//
+// var response = showController.Add();
+//
+// log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
 
 #endregion
 
-log.Stop();
+
+

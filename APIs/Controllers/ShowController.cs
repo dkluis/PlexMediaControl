@@ -24,11 +24,19 @@ public class ShowController : ControllerBase
         return showEntity;
     }
     
-    [HttpGet("GetTvm/{id:int}")]
+    [HttpGet("Get/{id:int}/Tvm")]
     public ActionResult<ShowEntity> GetTvm(int id)
     {
         using var showEntity = new ShowEntity(new AppInfo("PlexMediaControl", "APIs"));
         showEntity.Get(showId: id, getTvmInfo: true);
+        return showEntity;
+    }
+    
+    [HttpGet("Get/{id:int}/Episodes")]
+    public ActionResult<ShowEntity> GetEpisode(int id)
+    {
+        using var showEntity = new ShowEntity(new AppInfo("PlexMediaControl", "APIs"));
+        showEntity.Get(showId: id, getEpisodes: true);
         return showEntity;
     }
     

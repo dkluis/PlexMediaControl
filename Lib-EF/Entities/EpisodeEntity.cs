@@ -74,8 +74,9 @@ public class EpisodeEntity : Episode, IDisposable
             var epiExist = epiInDb != null;
             if (epiExist)
             {
-                if (isSkipping && (episode.Status != "Watched"))
+                if (isSkipping && episode.Status != "Watched")
                 {
+                    // Delete Episodes if Show is set to Skipping and not is Watched before
                     try
                     {
                         resp.InfoMessage += $"Deleting Episode {episode.EpisodeId} due to Show set to Skipping and is not Watched";
@@ -96,8 +97,13 @@ public class EpisodeEntity : Episode, IDisposable
                 }
                 else
                 {
-                    // Update Epi in DB
+                    // Update Episodes if show is not set to Skipping or is set to Watched
+                    
                 }
+            }
+            else
+            {
+                // Add the Episode
             }
         }
         
@@ -114,19 +120,25 @@ public class EpisodeEntity : Episode, IDisposable
         var allEpisodes = new List<TvmEpisode>();
         foreach (var episode in episodesByShowJson)
         {
-            var epiId = string.IsNullOrEmpty(episode["id"]?.ToString()) ? int.Parse(episode["id"]!.ToString()) : 0;
-            var epiMarkedJson = tvmApi.ConvertHttpToJObject(tvmApi.GetEpisodeMarks(epiId));
-            var epiType = string.IsNullOrEmpty(epiMarkedJson["type"]?.ToString()) ? int.Parse(epiMarkedJson["type"]!.ToString()) : 99;
-            var tvmType = ConvertEpisodeMarking(epiType);
+            var epiId = !string.IsNullOrEmpty(episode["id"]?.ToString()) ? int.Parse(episode["id"]!.ToString()) : 0;
+            var tvmApiMarks = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
+            var epiMarkedJson = tvmApiMarks.ConvertHttpToJObject(tvmApiMarks.GetEpisodeMarks(epiId));
+            string? tvmType = null; 
+            if (!string.IsNullOrEmpty(epiMarkedJson.ToString()) && epiMarkedJson.ToString() != "{}")
+            {
+                var epiType = !string.IsNullOrEmpty(epiMarkedJson["type"]?.ToString()) ? int.Parse(epiMarkedJson["type"]!.ToString()) : 99;
+                tvmType = ConvertEpisodeMarking(epiType);
+            }
+
             var epiAirDate = !string.IsNullOrEmpty(epiMarkedJson["airdate"]?.ToString()) ? DateTime.Parse(epiMarkedJson["airdate"]!.ToString()) : new DateTime(1900, 01, 01, 0, 0, 0);
-            var airtime = string.IsNullOrEmpty(epiMarkedJson["airtime"]?.ToString()) ? epiMarkedJson["airtime"]!.ToString() : "";
+            var airtime = !string.IsNullOrEmpty(epiMarkedJson["airtime"]?.ToString()) ? epiMarkedJson["airtime"]!.ToString() : "";
             var airtimeSplit = airtime.Split(":");
             if (airtimeSplit.Length > 1)
             {
                 epiAirDate = epiAirDate.AddHours(int.Parse(airtimeSplit[0]));
                 epiAirDate = epiAirDate.AddMinutes(int.Parse(airtimeSplit[1]));
             }
-
+            
             var epi = new TvmEpisode
             {
                 EpisodeId = epiId,

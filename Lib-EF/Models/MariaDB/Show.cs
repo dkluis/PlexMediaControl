@@ -20,8 +20,9 @@ namespace PlexMediaControl.Models.MariaDB
         public string Finder { get; set; } = null!;
         public string? MediaType { get; set; }
         public string CleanedShowName { get; set; } = null!;
-        public string AltShowname { get; set; } = null!;
+        public string AcquireShowName { get; set; } = null!;
         public DateTime UpdateDate { get; set; }
+        public string PlexShowName { get; set; } = null!;
 
         public virtual MediaType? MediaTypeNavigation { get; set; }
         public virtual ShowStatus ShowStatusNavigation { get; set; } = null!;

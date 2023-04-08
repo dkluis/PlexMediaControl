@@ -4,18 +4,18 @@
         <ReleaseVersion>1.5</ReleaseVersion>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU</Platforms>
-        <LangVersion>10</LangVersion>
-        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>11</LangVersion>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>Common_Lib</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2"/>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Newtonsoft.Json"/>
+        <None Remove="Newtonsoft.Json" />
     </ItemGroup>
 </Project>

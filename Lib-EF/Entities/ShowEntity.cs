@@ -26,7 +26,7 @@ public class ShowEntity : Show, IDisposable
         try
         {
             using var db = new TvMaze();
-            var show = getEpisodes ? db.Shows.Include(e => e.Episodes).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
+            var show = getEpisodes ? db.Shows.Include(e => e.Episodes.Select(ep => ep.Id)).SingleOrDefault(s => s.TvmShowId == showId) : db.Shows.SingleOrDefault(s => s.TvmShowId == showId);
             if (show != null)
             {
                 CopyShow(show);
@@ -71,7 +71,8 @@ public class ShowEntity : Show, IDisposable
             using var db = new TvMaze();
             var shows = db.Shows
                 .Where(s => s.ShowName == showName ||
-                            s.AltShowname == showName ||
+                            s.AcquireShowName == showName ||
+                            s.PlexShowName == showName ||
                             s.CleanedShowName == cleanedShowName)
                 .Select(s => new {s.Id, s.TvmShowId, s.ShowName, s.ShowStatus})
                 .ToList();
@@ -231,7 +232,7 @@ public class ShowEntity : Show, IDisposable
             return resp;
         }
 
-        var skipping = Finder == "Skip" || TvmStatus == "Skipping";
+        var skipping = Finder == "Skip" || TvmStatus == "Skipping" || UpdateDate == new DateTime(2200, 01, 01, 0, 0, 0);
         var episodesResult = EpisodeEntity.UpdateAllEpisodes(TvmShowId, skipping);
         if (!episodesResult.Success)
         {
@@ -317,8 +318,10 @@ public class ShowEntity : Show, IDisposable
         Finder = show.Finder;
         MediaType = show.MediaType;
         CleanedShowName = show.CleanedShowName;
-        AltShowname = show.AltShowname;
+        AcquireShowName = show.AcquireShowName;
+        PlexShowName = show.PlexShowName;
         UpdateDate = show.UpdateDate;
+        Episodes = show.Episodes;
     }
 
     private Response Validate()

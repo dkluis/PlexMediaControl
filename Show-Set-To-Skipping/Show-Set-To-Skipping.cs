@@ -54,8 +54,8 @@ Environment.Exit(0);*/
 {
     var ai = new ActionItemEntity();
     var directory = GetMediaDirectory(showRec.MediaType);
-    var showName = showRec.AltShowname != ""
-        ? showRec.AltShowname
+    var showName = showRec.AcquireShowname != ""
+        ? showRec.AcquireShowname
         : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(showRec.CleanedShowName);
     if (Directory.Exists(directory))
         try
