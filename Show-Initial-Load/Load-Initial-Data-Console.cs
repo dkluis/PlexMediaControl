@@ -14,16 +14,23 @@ var log = appInfo.TxtFile;
 
 log.Start();
 
-// log.Write("Starting FindOutWhatShowsToLoad");
-// Functions.FindOutWhatShowsToLoad(appInfo);
-// log.Write("Stopped FindOutWhatShowsToLoad");
-
 var function = "Load Base Data";
 log.Write($"Starting function: {function} ");
 var result = Functions.LoadBaseData(appInfo);
-Console.WriteLine(result.Message);
 log.Write($"Stopped: {function}");
+if (!result.IsSuccess) Environment.Exit(01);
 
+function = "Load Show Updates";
+log.Write($"Starting function: {function} ");
+result = Functions.LoadShowUpdates(appInfo);
+log.Write($"Stopped: {function}");
+if (!result.IsSuccess) Environment.Exit(02);
+
+function = "Load Show Updates";
+log.Write($"Starting function: {function} ");
+result = Functions.LoadFollowed(appInfo);
+log.Write($"Stopped: {function}");
+if (!result.IsSuccess) Environment.Exit(03);
 
 log.Stop();
 
@@ -34,7 +41,44 @@ internal static class Functions
         var log = appInfo.TxtFile;
         var result = new FunctionResult();
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
+        
+        result = LoadTvmStatuses(appInfo, oldAppInfo, log, result);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "TvmStatuses");
+        if (!result.IsSuccess) return result;
+        
+        return result;
+    }
+    
+    internal static FunctionResult LoadShowUpdates(AppInfo appInfo)
+    {
+        var log = appInfo.TxtFile;
+        var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
+        
+        var result = LoadTvmShowUpdates(appInfo, oldAppInfo, log);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "ShowUpdates");
+        if (!result.IsSuccess) return result;
+        
+        return result;
+    }
+    
+    internal static FunctionResult LoadFollowed(AppInfo appInfo)
+    {
+        var log = appInfo.TxtFile;
+        var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
+        
+        var result = LoadShowsFollowed(appInfo, oldAppInfo, log);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Followed");
+        if (!result.IsSuccess) return result;
+        
+        return result;
+    }
+
+    internal static FunctionResult LoadTvmStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    {
+        var result = fResult;
         var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
         try
         {
             using (var oldDb = new MariaDb(oldAppInfo))
@@ -42,16 +86,27 @@ internal static class Functions
                 var rdr = oldDb.ExecQuery($"Select * From TvmStatuses");
                 while (rdr.Read())
                 {
-                    var rec = db.TvmStatuses.SingleOrDefault(t => t.TvmStatus1 == (string) rdr[0]);
+                    var test = rdr["TvmStatus"].ToString();
+                    var rec = db.TvmStatuses.SingleOrDefault(t => t.TvmStatus1 == test);
                     if (rec == null)
                     {
-                        var newRec = new TvmStatus() {TvmStatus1 = (string) rdr[0]};
-                        log.Write($"Added TvmStatus: {newRec.TvmStatus1}");
-                        result.Message += $"Added: {newRec.TvmStatus1}, ";
+                        var newRec = new TvmStatus()
+                        {
+                            TvmStatus1 = (string) rdr["TvmStatus"]
+                        };
                         db.TvmStatuses.Add(newRec);
                         db.SaveChanges();
+                        added++;
                     }
                 }
+                //oldDb.Close();
+                var count = oldDb.ExecQuery("Select count(*) from TvmStatuses");
+                var oldCount = 0;
+                while (rdr.Read())
+                {
+                    oldCount = int.Parse(rdr[0].ToString());
+                }
+                var newCount = db.TvmStatuses.GroupBy(f => f.TvmStatus1).Count();
             }
         }
         catch (Exception e)
@@ -62,6 +117,105 @@ internal static class Functions
         }
 
         result.IsSuccess = true;
+        result.Message = $"TvmStatuses Added: {added} and Updated: {updated}";
+        return result;
+    }
+    
+    internal static FunctionResult LoadTvmShowUpdates(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
+    {
+        var result = new FunctionResult();
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From Followed ORDER BY TvmShowId");
+                while (rdr.Read())
+                {
+                    var rec = db.Followeds.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
+                    if (rec == null)
+                    {
+                        var followedRec = new Followed() 
+                            {
+                                TvmShowId = (int) rdr["TvmShowId"], 
+                                UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString())
+                            };
+                        db.Followeds.Add(followedRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                    else if (rec.UpdateDate != Convert.ToDateTime(rdr["UpdateDate"].ToString()))
+                    {
+                        rec.UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString());
+                        db.SaveChanges();
+                        updated++;
+                    }
+                }
+                oldDb.Close();
+                var oldCount = oldDb.ExecQuery("Select count(*) from Followed");
+                var newCount = db.Followeds.Select(f => f.Id).ToArray();
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+            return result;
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"TvmShowUpdates Added: {added} and Updated: {updated}";
+        return result;
+    }
+    
+    internal static FunctionResult LoadShowsFollowed(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
+    {
+        var result = new FunctionResult();
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From TvmShowUpdates ORDER BY TvmShowId");
+                while (rdr.Read())
+                {
+                    var rec = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
+                    if (rec == null)
+                    {
+                        var showUpdateRec = new TvmShowUpdate() 
+                        {
+                            TvmShowId = (int) rdr["TvmShowId"], 
+                            TvmUpdateDate = Convert.ToDateTime(rdr["TvmUpdateDate"].ToString()),
+                            TvmUpdateEpoch = (int) rdr["TvmUpdateEpoch"]
+                        };
+                        db.TvmShowUpdates.Add(showUpdateRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                    else if (rec.TvmUpdateEpoch != (int) rdr["TvmUpdateEpoch"])
+                    {
+                        rec.TvmUpdateEpoch = (int) rdr["TvmUpdateEpoch"];
+                        db.SaveChanges();
+                        updated++;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+            return result;
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"TvmShowUpdates Added: {added} and Updated: {updated}";
         return result;
     }
 }
