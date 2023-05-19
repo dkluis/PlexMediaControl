@@ -1,12 +1,6 @@
-﻿using System.Security.AccessControl;
-using Common_Lib;
+﻿using Common_Lib;
 using Lib_SqlDB;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using Newtonsoft.Json.Linq;
-using PlexMediaControl.Entities;
 using PlexMediaControl.Models.MariaDB;
-using Web_Lib;
 
 var appInfo = new AppInfo("PlexMediaControl", "Load Initial Data");
 appInfo.LogLevel = 5;
@@ -15,18 +9,21 @@ var log = appInfo.TxtFile;
 log.Start();
 
 var function = "Load Base Data";
+log.Write("");
 log.Write($"Starting function: {function} ");
 var result = Functions.LoadBaseData(appInfo);
 log.Write($"Stopped: {function}");
 if (!result.IsSuccess) Environment.Exit(01);
 
 function = "Load Show Updates";
+log.Write("");
 log.Write($"Starting function: {function} ");
 result = Functions.LoadShowUpdates(appInfo);
 log.Write($"Stopped: {function}");
 if (!result.IsSuccess) Environment.Exit(02);
 
-function = "Load Show Updates";
+function = "Load Followed Updates";
+log.Write("");
 log.Write($"Starting function: {function} ");
 result = Functions.LoadFollowed(appInfo);
 log.Write($"Stopped: {function}");
@@ -42,8 +39,28 @@ internal static class Functions
         var result = new FunctionResult();
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
         
+        log.Write("");
+        log.Write("Handling Load TVM Statuses");
         result = LoadTvmStatuses(appInfo, oldAppInfo, log, result);
-        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "TvmStatuses");
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
+        if (!result.IsSuccess) return result;
+        
+        log.Write("");
+        log.Write("Handling Load Show Statuses");
+        result = LoadShowStatuses(appInfo, oldAppInfo, log, result);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
+        if (!result.IsSuccess) return result;
+        
+        log.Write("");
+        log.Write("Handling Load Plex Statuses");
+        result = LoadPlexStatuses(appInfo, oldAppInfo, log, result);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
+        if (!result.IsSuccess) return result;
+        
+        log.Write("");
+        log.Write("Handling Load Media Types");
+        result = LoadMediaTypes(appInfo, oldAppInfo, log, result);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
         return result;
@@ -99,14 +116,12 @@ internal static class Functions
                         added++;
                     }
                 }
-                //oldDb.Close();
-                var count = oldDb.ExecQuery("Select count(*) from TvmStatuses");
+                oldDb.Close();
                 var oldCount = 0;
-                while (rdr.Read())
-                {
-                    oldCount = int.Parse(rdr[0].ToString());
-                }
+                var countResult = GetCount(appInfo, "Select count(*) from TvmStatuses");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.TvmStatuses.GroupBy(f => f.TvmStatus1).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "TvmStatuses");
             }
         }
         catch (Exception e)
@@ -119,6 +134,180 @@ internal static class Functions
         result.IsSuccess = true;
         result.Message = $"TvmStatuses Added: {added} and Updated: {updated}";
         return result;
+    }
+    
+    internal static FunctionResult LoadShowStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    {
+        var result = fResult;
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From ShowStatuses");
+                while (rdr.Read())
+                {
+                    var test = rdr["ShowStatus"].ToString();
+                    var rec = db.ShowStatuses.SingleOrDefault(t => t.ShowStatus1 == test);
+                    if (rec == null)
+                    {
+                        var newRec = new ShowStatus()
+                        {
+                            ShowStatus1 = (string) rdr["ShowStatus"]
+                        };
+                        db.ShowStatuses.Add(newRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                }
+                oldDb.Close();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from ShowStatuses");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.ShowStatuses.GroupBy(f => f.ShowStatus1).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "ShowStatuses");
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"ShowStatuses Added: {added} and Updated: {updated}";
+        return result;
+    }
+    
+    internal static FunctionResult LoadPlexStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    {
+        var result = fResult;
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From PlexStatuses");
+                while (rdr.Read())
+                {
+                    var test = rdr["PlexStatus"].ToString();
+                    var rec = db.PlexStatuses.SingleOrDefault(t => t.PlexStatus1 == test);
+                    if (rec == null)
+                    {
+                        var newRec = new PlexStatus()
+                        {
+                            PlexStatus1 = (string) rdr["PlexStatus"]
+                        };
+                        db.PlexStatuses.Add(newRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                }
+                oldDb.Close();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from PlexStatuses");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.PlexStatuses.GroupBy(f => f.PlexStatus1).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "PlexStatuses");
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
+        return result;
+    }
+    
+    internal static FunctionResult LoadMediaTypes(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    {
+        var result = fResult;
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From MediaTypes");
+                while (rdr.Read())
+                {
+                    var test = rdr["MediaType"].ToString();
+                    var rec = db.MediaTypes.SingleOrDefault(t => t.MediaType1 == test);
+                    if (rec == null)
+                    {
+                        var newRec = new MediaType
+                        {
+                            MediaType1 = (string) rdr["MediaType"],
+                            PlexLocation = (string) rdr["PlexLocation"],
+                            AutoDelete = (string) rdr["AutoDelete"],
+                        };
+                        db.MediaTypes.Add(newRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                    else
+                    {
+                        rec.PlexLocation = (string) rdr["MediaType"];
+                        rec.AutoDelete = (string) rdr["AutoDelete"];
+                        db.SaveChanges();
+                        updated++;
+                    }
+                }
+                oldDb.Close();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from MediaTypes");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.MediaTypes.GroupBy(f => f.MediaType1).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "MediaTypes");
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
+        return result;
+    }
+
+    internal static FunctionResult GetCount(AppInfo appInfo, string sql)
+    {
+        var mDb = new MariaDb(appInfo);
+        var rdr = mDb.ExecQuery(sql);
+        var oldCount = "";
+        while (rdr.Read())
+        {
+            oldCount = rdr[0].ToString()!;
+        }
+ 
+        if (oldCount == "")
+        {
+            mDb.Close();
+            return new FunctionResult()
+            {
+                IsSuccess = false,
+            };
+        }
+        mDb.Close();
+
+        return new FunctionResult()
+        {
+            IsSuccess = true,
+            Message = oldCount
+        };
     }
     
     internal static FunctionResult LoadTvmShowUpdates(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
@@ -154,8 +343,11 @@ internal static class Functions
                     }
                 }
                 oldDb.Close();
-                var oldCount = oldDb.ExecQuery("Select count(*) from Followed");
-                var newCount = db.Followeds.Select(f => f.Id).ToArray();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from Followed");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.Followeds.GroupBy(f => f.Id).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "Followed");
             }
         }
         catch (Exception e)
@@ -197,13 +389,20 @@ internal static class Functions
                         db.SaveChanges();
                         added++;
                     }
-                    else if (rec.TvmUpdateEpoch != (int) rdr["TvmUpdateEpoch"])
+                    else if (rec.TvmUpdateEpoch != (int) rdr["TvmUpdateEpoch"] || rec.TvmUpdateDate != Convert.ToDateTime(rdr["TvmUpdateDate"].ToString()))
                     {
                         rec.TvmUpdateEpoch = (int) rdr["TvmUpdateEpoch"];
+                        rec.TvmUpdateDate = Convert.ToDateTime(rdr["TvmUpdateDate"].ToString());
                         db.SaveChanges();
                         updated++;
                     }
                 }
+                oldDb.Close();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from TvmShowUpdates");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.TvmShowUpdates.GroupBy(f => f.Id).Count();
+                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "TvmShowUpdates");
             }
         }
         catch (Exception e)
