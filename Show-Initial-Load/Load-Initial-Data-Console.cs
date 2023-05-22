@@ -5,6 +5,7 @@ using PlexMediaControl.Models.MariaDB;
 var appInfo = new AppInfo("PlexMediaControl", "Load Initial Data");
 appInfo.LogLevel = 5;
 var log = appInfo.TxtFile;
+var lastUpdate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)).ToString("yyyy-MM-dd");
 
 log.Start();
 
@@ -15,17 +16,17 @@ var result = Functions.LoadBaseData(appInfo);
 log.Write($"Stopped: {function}");
 if (!result.IsSuccess) Environment.Exit(01);
 
-function = "Load Show Updates";
+function = "Load TVM Show Updates";
 log.Write("");
 log.Write($"Starting function: {function} ");
-result = Functions.LoadShowUpdates(appInfo);
+result = Functions.LoadTvmShowUpdates(appInfo, lastUpdate);
 log.Write($"Stopped: {function}");
 if (!result.IsSuccess) Environment.Exit(02);
 
 function = "Load Followed Updates";
 log.Write("");
 log.Write($"Starting function: {function} ");
-result = Functions.LoadFollowed(appInfo);
+result = Functions.LoadFollowed(appInfo, lastUpdate);
 log.Write($"Stopped: {function}");
 if (!result.IsSuccess) Environment.Exit(03);
 
@@ -41,58 +42,58 @@ internal static class Functions
         
         log.Write("");
         log.Write("Handling Load TVM Statuses");
-        result = LoadTvmStatuses(appInfo, oldAppInfo, log, result);
+        result = LoadTvmStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
         log.Write("");
         log.Write("Handling Load Show Statuses");
-        result = LoadShowStatuses(appInfo, oldAppInfo, log, result);
+        result = LoadShowStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
         log.Write("");
         log.Write("Handling Load Plex Statuses");
-        result = LoadPlexStatuses(appInfo, oldAppInfo, log, result);
+        result = LoadPlexStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
         log.Write("");
         log.Write("Handling Load Media Types");
-        result = LoadMediaTypes(appInfo, oldAppInfo, log, result);
+        result = LoadMediaTypes(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
         return result;
     }
     
-    internal static FunctionResult LoadShowUpdates(AppInfo appInfo)
+    internal static FunctionResult LoadTvmShowUpdates(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
         
-        var result = LoadTvmShowUpdates(appInfo, oldAppInfo, log);
+        var result = UpdateTvmShowsUpdates(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "ShowUpdates");
         if (!result.IsSuccess) return result;
         
         return result;
     }
     
-    internal static FunctionResult LoadFollowed(AppInfo appInfo)
+    internal static FunctionResult LoadFollowed(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
         
-        var result = LoadShowsFollowed(appInfo, oldAppInfo, log);
+        var result = UpdateFollowed(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Followed");
         if (!result.IsSuccess) return result;
         
         return result;
     }
 
-    internal static FunctionResult LoadTvmStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    internal static FunctionResult LoadTvmStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
-        var result = fResult;
+        var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
@@ -136,9 +137,9 @@ internal static class Functions
         return result;
     }
     
-    internal static FunctionResult LoadShowStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    internal static FunctionResult LoadShowStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
-        var result = fResult;
+        var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
@@ -182,9 +183,9 @@ internal static class Functions
         return result;
     }
     
-    internal static FunctionResult LoadPlexStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    internal static FunctionResult LoadPlexStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
-        var result = fResult;
+        var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
@@ -228,9 +229,9 @@ internal static class Functions
         return result;
     }
     
-    internal static FunctionResult LoadMediaTypes(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, FunctionResult fResult)
+    internal static FunctionResult LoadMediaTypes(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
-        var result = fResult;
+        var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
@@ -310,19 +311,21 @@ internal static class Functions
         };
     }
     
-    internal static FunctionResult LoadTvmShowUpdates(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
+    internal static FunctionResult UpdateFollowed(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
     {
         var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
+        var total = 0;
         try
         {
             using (var oldDb = new MariaDb(oldAppInfo))
             {
-                var rdr = oldDb.ExecQuery($"Select * From Followed ORDER BY TvmShowId");
+                var rdr = oldDb.ExecQuery($"Select * From Followed WHERE UpdateDate >= '{lastUpdate}' ORDER BY TvmShowId");
                 while (rdr.Read())
                 {
+                    total++;
                     var rec = db.Followeds.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
                     if (rec == null)
                     {
@@ -347,7 +350,7 @@ internal static class Functions
                 var countResult = GetCount(appInfo, "Select count(*) from Followed");
                 if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.Followeds.GroupBy(f => f.Id).Count();
-                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "Followed");
+                log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}", "Followed");
             }
         }
         catch (Exception e)
@@ -363,19 +366,21 @@ internal static class Functions
         return result;
     }
     
-    internal static FunctionResult LoadShowsFollowed(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
+    internal static FunctionResult UpdateTvmShowsUpdates(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
     {
         var result = new FunctionResult();
         var db = new TvMaze();
         var added = 0;
         var updated = 0;
+        var total = 0;
         try
         {
             using (var oldDb = new MariaDb(oldAppInfo))
             {
-                var rdr = oldDb.ExecQuery($"Select * From TvmShowUpdates ORDER BY TvmShowId");
+                var rdr = oldDb.ExecQuery($"Select * From TvmShowUpdates WHERE TvmUpdateDate >= '{lastUpdate}' ORDER BY TvmShowId");
                 while (rdr.Read())
                 {
+                    total++;
                     var rec = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
                     if (rec == null)
                     {
@@ -402,7 +407,7 @@ internal static class Functions
                 var countResult = GetCount(appInfo, "Select count(*) from TvmShowUpdates");
                 if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.TvmShowUpdates.GroupBy(f => f.Id).Count();
-                log.Write($"Num of Old records: {oldCount}, New Records: {newCount}", "TvmShowUpdates");
+                log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}", "TvmShowUpdates");
             }
         }
         catch (Exception e)
