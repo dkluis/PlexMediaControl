@@ -2,34 +2,42 @@
 using Lib_SqlDB;
 using PlexMediaControl.Models.MariaDB;
 
-var appInfo = new AppInfo("PlexMediaControl", "Load Initial Data");
+var appInfo = new AppInfo("PlexMediaControl", "Refresh Data");
 appInfo.LogLevel = 5;
 var log = appInfo.TxtFile;
-var lastUpdate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)).ToString("yyyy-MM-dd");
+var lastUpdate = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)).ToString("yyyy-MM-dd");
 
 log.Start();
 
 var function = "Load Base Data";
-log.Write("");
-log.Write($"Starting function: {function} ");
+log.Write("", function);
+log.Write($"Starting function: {function} ", function);
 var result = Functions.LoadBaseData(appInfo);
-log.Write($"Stopped: {function}");
+log.Write($"Stopped: {function}", function);
 if (!result.IsSuccess) Environment.Exit(01);
 
 function = "Load TVM Show Updates";
-log.Write("");
-log.Write($"Starting function: {function} ");
+log.Write("", function);
+log.Write($"Starting function: {function} ", function);
 result = Functions.LoadTvmShowUpdates(appInfo, lastUpdate);
-log.Write($"Stopped: {function}");
+log.Write($"Stopped: {function}", function);
 if (!result.IsSuccess) Environment.Exit(02);
 
 function = "Load Followed Updates";
-log.Write("");
-log.Write($"Starting function: {function} ");
+log.Write("", function);
+log.Write($"Starting function: {function} ", function);
 result = Functions.LoadFollowed(appInfo, lastUpdate);
-log.Write($"Stopped: {function}");
+log.Write($"Stopped: {function}", function);
 if (!result.IsSuccess) Environment.Exit(03);
 
+function = "Load Show Updates";
+log.Write("", function);
+log.Write($"Starting function: {function} ", function);
+result = Functions.LoadShows(appInfo, lastUpdate);
+log.Write($"Stopped: {function}", function);
+if (!result.IsSuccess) Environment.Exit(04);
+
+log.Write("");
 log.Stop();
 
 internal static class Functions
@@ -85,6 +93,18 @@ internal static class Functions
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
         
         var result = UpdateFollowed(appInfo, oldAppInfo, log, lastUpdate);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Followed");
+        if (!result.IsSuccess) return result;
+        
+        return result;
+    }
+    
+    internal static FunctionResult LoadShows(AppInfo appInfo, string lastUpdate)
+    {
+        var log = appInfo.TxtFile;
+        var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
+        
+        var result = UpdateShows(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Followed");
         if (!result.IsSuccess) return result;
         
@@ -362,7 +382,7 @@ internal static class Functions
         }
 
         result.IsSuccess = true;
-        result.Message = $"TvmShowUpdates Added: {added} and Updated: {updated}";
+        result.Message = $"Followed Added: {added} and Updated: {updated}";
         return result;
     }
     
@@ -422,6 +442,83 @@ internal static class Functions
         result.Message = $"TvmShowUpdates Added: {added} and Updated: {updated}";
         return result;
     }
+    
+    internal static FunctionResult UpdateShows(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
+    {
+        var result = new FunctionResult();
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        var total = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From Shows WHERE UpdateDate >= '{lastUpdate}' ORDER BY TvmShowId");
+                while (rdr.Read())
+                {
+                    total++;
+                    var rec = db.Shows.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
+                    if (rec == null)
+                    {
+                        var showsRec = new Show
+                        {
+                            TvmShowId = (int) rdr["TvmShowId"], 
+                            UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString()),
+                            TvmStatus = rdr["TvmStatus"].ToString()!,
+                            TvmUrl = rdr["TvmUrl"].ToString(),
+                            ShowName = rdr["ShowName"].ToString()!,
+                            ShowStatus = rdr["ShowStatus"].ToString()!,
+                            PremiereDate = Convert.ToDateTime(rdr["PremiereDate"].ToString()),
+                            Finder = rdr["Finder"].ToString()!,
+                            MediaType = rdr["MediaType"].ToString()!,
+                            CleanedShowName = rdr["CleanedShowName"].ToString()!,
+                            AcquireShowName = rdr["AltShowName"].ToString()!,
+                            PlexShowName = rdr["AltShowName"].ToString()!,
+                        };
+                        db.Shows.Add(showsRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                    else if (rec.UpdateDate != Convert.ToDateTime(rdr["UpdateDate"].ToString()))
+                    {
+                        rec.TvmShowId = (int) rdr["TvmShowId"];
+                        rec.UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString());
+                        rec.TvmStatus = rdr["TvmStatus"].ToString()!;
+                        rec.TvmUrl = rdr["TvmUrl"].ToString();
+                        rec.ShowName = rdr["ShowName"].ToString()!;
+                        rec.ShowStatus = rdr["ShowStatus"].ToString()!;
+                        rec.PremiereDate = Convert.ToDateTime(rdr["PremiereDate"].ToString());
+                        rec.Finder = rdr["Finder"].ToString()!;
+                        rec.MediaType = rdr["MediaType"].ToString()!;
+                        rec.CleanedShowName = rdr["CleanedShowName"].ToString()!;
+                        rec.AcquireShowName = rdr["AltShowName"].ToString()!;
+                        rec.PlexShowName = rdr["AltShowName"].ToString()!;
+                        db.SaveChanges();
+                        updated++;
+                    }
+                }
+                oldDb.Close();
+                var oldCount = 0;
+                var countResult = GetCount(appInfo, "Select count(*) from Shows");
+                if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
+                var newCount = db.Shows.GroupBy(f => f.Id).Count();
+                log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}");
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+            return result;
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"Shows Added: {added} and Updated: {updated}";
+        return result;
+    }
+    
 }
 
 
