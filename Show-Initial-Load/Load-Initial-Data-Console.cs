@@ -72,6 +72,12 @@ internal static class Functions
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
         if (!result.IsSuccess) return result;
         
+        log.Write("");
+        log.Write("Handling Load Last Show Evaluated");
+        result = LoadLastShowEvaluated(appInfo, oldAppInfo, log);
+        log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "BaseData");
+        if (!result.IsSuccess) return result;
+        
         return result;
     }
     
@@ -303,6 +309,55 @@ internal static class Functions
         result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
         return result;
     }
+    
+    internal static FunctionResult LoadLastShowEvaluated(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
+    {
+        var result = new FunctionResult();
+        var db = new TvMaze();
+        var added = 0;
+        var updated = 0;
+        try
+        {
+            using (var oldDb = new MariaDb(oldAppInfo))
+            {
+                var rdr = oldDb.ExecQuery($"Select * From LastShowEvaluated");
+                while (rdr.Read())
+                {
+                    var test = (int) int.Parse(rdr["ShowId"].ToString()!);
+                    var rec = db.LastShowEvaluateds.SingleOrDefault(r => r.Id == 1);
+                    if (rec == null)
+                    {
+                        var newRec = new LastShowEvaluated()
+                        {
+                            Id = 1,
+                            ShowId = test,
+                        };
+                        db.Add(newRec);
+                        db.SaveChanges();
+                        added++;
+                    }
+                    else
+                    {
+                        rec.ShowId = test;
+                        db.SaveChanges();
+                        updated++;
+                    }
+                }
+                oldDb.Close();
+                log.Write($"Num of Old records: {1}, New Records: {1}", "Last Updated Show");
+            }
+        }
+        catch (Exception e)
+        {
+            log.Write($"Error Occured Exception: {e.Message}, with innerException {e.InnerException}");
+            result.IsSuccess = false;
+            result.ErrorMessage += $"{e.Message}: {e.InnerException}";
+        }
+
+        result.IsSuccess = true;
+        result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
+        return result;
+    }
 
     internal static FunctionResult GetCount(AppInfo appInfo, string sql)
     {
@@ -371,6 +426,20 @@ internal static class Functions
                 if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.Followeds.GroupBy(f => f.Id).Count();
                 log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}", "Followed");
+                
+                var allFollowed = db.Followeds.ToList();
+                foreach (var followed in allFollowed)
+                {
+                    var rdrOld = oldDb.ExecQuery($"select * from Followed where TvmShowId = {followed.TvmShowId}");
+                    if (!rdrOld.HasRows)
+                    {
+                        log.Write($"Deleting {followed.TvmShowId} from DB");
+                        var fRec = db.Followeds.SingleOrDefault(f => f.TvmShowId == followed.TvmShowId);
+                        if (fRec != null) db.Remove(fRec);
+                        db.SaveChanges();
+                    }
+                    oldDb.Close();
+                }
             }
         }
         catch (Exception e)
@@ -504,6 +573,24 @@ internal static class Functions
                 if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.Shows.GroupBy(f => f.Id).Count();
                 log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}");
+
+                var allShows = db.Shows.ToList();
+                foreach (var show in allShows)
+                {
+                    var rdrOld = oldDb.ExecQuery($"select * from shows where TvmShowId = {show.TvmShowId}");
+                    if (!rdrOld.HasRows)
+                    {
+                        log.Write($"Deleting {show.TvmShowId}, {show.ShowName} from DB");
+                        var fRec = db.Followeds.SingleOrDefault(f => f.TvmShowId == show.TvmShowId);
+                        var eRecs = db.Episodes.Where(e => e.TvmShowId == show.TvmShowId).ToList();
+                        if (fRec != null) db.Remove(fRec);
+                        db.RemoveRange(eRecs);
+                        db.Remove(show);
+                        db.SaveChanges();
+                    }
+                    oldDb.Close();
+                }
+                
             }
         }
         catch (Exception e)
