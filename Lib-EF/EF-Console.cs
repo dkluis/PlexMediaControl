@@ -13,45 +13,49 @@ var recCount = db.ActionItems.Count();
 totalRecords += recCount;
 log.Write($"Action Items {recCount} records found");
 
-var result2 = db.Episodes.ToArray();
-totalRecords += result2.Length;
-log.Write($"Episodes {result2.Length} records found");
+recCount = db.Episodes.Count();
+totalRecords += recCount;
+log.Write($"Episodes {recCount} records found");
 
-var result3 = db.Followeds.ToArray();
-totalRecords += result3.Length;
-log.Write($"Followed {result3.Length} records found");
+recCount = db.Followeds.Count();
+totalRecords += recCount;
+log.Write($"Followed {recCount} records found");
 
-var result4 = db.LastShowEvaluateds.ToArray();
-totalRecords += result4.Length;
-log.Write($"Last Evaluated Show {result4.Length} records found");
+recCount = db.LastShowEvaluateds.Count();
+totalRecords += recCount;
+log.Write($"Last Evaluated Show {recCount} records found");
 
-var result5 = db.MediaTypes.ToArray();
-totalRecords += result5.Length;
-log.Write($"Media Types {result5.Length} records found");
+recCount = db.MediaTypes.Count();
+totalRecords += recCount;
+log.Write($"Media Types {recCount} records found");
 
-var result6 = db.PlexStatuses.ToArray();
-totalRecords += result6.Length;
-log.Write($"Plex Statuses {result6.Length} records found");
+recCount = db.PlexStatuses.Count();
+totalRecords += recCount;
+log.Write($"Plex Statuses {recCount} records found");
 
-var result7 = db.PlexWatchedEpisodes.ToArray();
-totalRecords += result7.Length;
-log.Write($"Plex Watched Episodes {result7.Length} records found");
+recCount = db.PlexWatchedEpisodes.Count();
+totalRecords += recCount;
+log.Write($"Plex Watched Episodes {recCount} records found");
 
-var result1 = db.Shows.ToArray();
-totalRecords += result1.Length;
-log.Write($"Shows {result1.Length} records found");
+recCount = db.TvmShowUpdates.Count();
+totalRecords += recCount;
+log.Write($"Shows Updates {recCount} records found");
 
-var result8 = db.ShowRssFeeds.ToArray();
-totalRecords += result8.Length;
-log.Write($"ShowRss Feeds {result8.Length} records found");
+recCount = db.Shows.Count();
+totalRecords += recCount;
+log.Write($"Shows {recCount} records found");
 
-var result9 = db.ShowStatuses.ToArray();
-totalRecords += result9.Length;
-log.Write($"Show Statuses {result9.Length} records found");
+recCount = db.ShowRssFeeds.Count();
+totalRecords += recCount;
+log.Write($"ShowRss Feeds {recCount} records found");
 
-var result10 = db.TvmStatuses.ToArray();
-totalRecords += result10.Length;
-log.Write($"Tvm Statuses {result10.Length} records found");
+recCount = db.ShowStatuses.Count();
+totalRecords += recCount;
+log.Write($"Show Statuses {recCount} records found");
+
+recCount = db.TvmStatuses.Count();
+totalRecords += recCount;
+log.Write($"Tvm Statuses {recCount} records found");
 
 log.Write($"Db has {totalRecords} records");
 log.Stop();
