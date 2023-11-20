@@ -33,9 +33,9 @@ recCount = db.PlexStatuses.Count();
 totalRecords += recCount;
 log.Write($"Plex Statuses {recCount} records found");
 
-recCount = db.PlexWatchedEpisodes.Count();
+recCount = db.Episodes.Count();
 totalRecords += recCount;
-log.Write($"Plex Watched Episodes {recCount} records found");
+log.Write($"Plex Episodes {recCount} records found");
 
 recCount = db.TvmShowUpdates.Count();
 totalRecords += recCount;
@@ -66,4 +66,3 @@ log.Stop();
 // dotnet ef dbContext scaffold "Server=ca-server.local;port=3306;Database=TvMazeNewDb;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql -o Models/MariaDB -f
 
 // dotnet ef dbContext scaffold "Server=ca-server.local;port=3306;Database=TvMazeProd;uid=dick;pwd=Sandy3942" Pomelo.EntityFrameworkCore.MySql -o Models/MariaDB -f -c TvMaze --schema TvMazeProd --no-build
-

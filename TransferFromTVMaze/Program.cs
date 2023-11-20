@@ -54,85 +54,85 @@ internal static class Functions
         var log = appInfo.TxtFile;
         FunctionResult result;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
-        
+
         log.Write("");
         log.Write("Handling Load TVM Statuses", function);
         result = LoadTvmStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", function);
         if (!result.IsSuccess) return result;
-        
+
         log.Write("");
         log.Write("Handling Load Show Statuses", function);
         result = LoadShowStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", function);
         if (!result.IsSuccess) return result;
-        
+
         log.Write("");
         log.Write("Handling Load Plex Statuses", function);
         result = LoadPlexStatuses(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", function);
         if (!result.IsSuccess) return result;
-        
+
         log.Write("");
         log.Write("Handling Load Media Types", function);
         result = LoadMediaTypes(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", function);
         if (!result.IsSuccess) return result;
-        
+
         log.Write("");
         log.Write("Handling Load Last Show Evaluated", function);
         result = LoadLastShowEvaluated(appInfo, oldAppInfo, log);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", function);
         if (!result.IsSuccess) return result;
-        
+
         return result;
     }
-    
+
     internal static FunctionResult LoadTvmShowUpdates(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
-        
+
         var result = UpdateTvmShowsUpdates(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "TvmShowUpdates");
         if (!result.IsSuccess) return result;
-        
+
         return result;
     }
-    
+
     internal static FunctionResult LoadFollowed(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
-        
+
         var result = UpdateFollowed(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Followeds");
         if (!result.IsSuccess) return result;
-        
+
         return result;
     }
-    
+
     internal static FunctionResult LoadShows(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
-        
+
         var result = UpdateShows(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Shows");
         if (!result.IsSuccess) return result;
-        
+
         return result;
     }
-    
+
     internal static FunctionResult LoadEpisodes(AppInfo appInfo, string lastUpdate)
     {
         var log = appInfo.TxtFile;
         var oldAppInfo = new AppInfo("TVMaze", "Read Old Data", dbConnection: "DbAlternate");
-        
+
         var result = UpdateEpisodes(appInfo, oldAppInfo, log, lastUpdate);
         log.Write($"Result: IsSuccess={result.IsSuccess}, Message={result.Message}, ErrorMessage={result.ErrorMessage}", "Episodes");
         if (!result.IsSuccess) return result;
-        
+
         return result;
     }
 
@@ -181,7 +181,7 @@ internal static class Functions
         result.Message = $"TvmStatuses Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult LoadShowStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
         var result = new FunctionResult();
@@ -227,7 +227,7 @@ internal static class Functions
         result.Message = $"ShowStatuses Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult LoadPlexStatuses(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
         var result = new FunctionResult();
@@ -273,7 +273,7 @@ internal static class Functions
         result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult LoadMediaTypes(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
         var result = new FunctionResult();
@@ -328,7 +328,7 @@ internal static class Functions
         result.Message = $"PlexStatuses Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult LoadLastShowEvaluated(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log)
     {
         var result = new FunctionResult();
@@ -387,7 +387,7 @@ internal static class Functions
         {
             oldCount = rdr[0].ToString()!;
         }
- 
+
         if (oldCount == "")
         {
             mDb.Close();
@@ -404,7 +404,7 @@ internal static class Functions
             Message = oldCount
         };
     }
-    
+
     internal static FunctionResult UpdateFollowed(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
     {
         var result = new FunctionResult();
@@ -423,9 +423,9 @@ internal static class Functions
                     var rec = db.Followeds.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
                     if (rec == null)
                     {
-                        var followedRec = new Followed() 
+                        var followedRec = new Followed()
                             {
-                                TvmShowId = (int) rdr["TvmShowId"], 
+                                TvmShowId = (int) rdr["TvmShowId"],
                                 UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString())
                             };
                         db.Followeds.Add(followedRec);
@@ -445,7 +445,7 @@ internal static class Functions
                 if (countResult.IsSuccess) oldCount = int.Parse(countResult.Message);
                 var newCount = db.Followeds.GroupBy(f => f.Id).Count();
                 log.Write($"Num of Old records: {oldCount}, Records Selected: {total}, New Records: {newCount}", "Followed");
-                
+
                 var allFollowed = db.Followeds.ToList();
                 foreach (var followed in allFollowed)
                 {
@@ -473,7 +473,7 @@ internal static class Functions
         result.Message = $"Followed Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult UpdateTvmShowsUpdates(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
     {
         var result = new FunctionResult();
@@ -492,9 +492,9 @@ internal static class Functions
                     var rec = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == (int) rdr["TvmShowId"]);
                     if (rec == null)
                     {
-                        var showUpdateRec = new TvmShowUpdate() 
+                        var showUpdateRec = new TvmShowUpdate()
                         {
-                            TvmShowId = (int) rdr["TvmShowId"], 
+                            TvmShowId = (int) rdr["TvmShowId"],
                             TvmUpdateDate = Convert.ToDateTime(rdr["TvmUpdateDate"].ToString()),
                             TvmUpdateEpoch = (int) rdr["TvmUpdateEpoch"]
                         };
@@ -530,7 +530,7 @@ internal static class Functions
         result.Message = $"TvmShowUpdates Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
     internal static FunctionResult UpdateShows(AppInfo appInfo, AppInfo oldAppInfo, TextFileHandler log, string lastUpdate)
     {
         var result = new FunctionResult();
@@ -551,7 +551,7 @@ internal static class Functions
                     {
                         var showsRec = new Show
                         {
-                            TvmShowId = (int) rdr["TvmShowId"], 
+                            TvmShowId = (int) rdr["TvmShowId"],
                             UpdateDate = Convert.ToDateTime(rdr["UpdateDate"].ToString()),
                             TvmStatus = rdr["TvmStatus"].ToString()!,
                             TvmUrl = rdr["TvmUrl"].ToString(),
@@ -567,9 +567,9 @@ internal static class Functions
                         var tvmRec = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showsRec.TvmShowId);
                         if (tvmRec == null)
                         {
-                            var showUpdateRec = new TvmShowUpdate() 
+                            var showUpdateRec = new TvmShowUpdate()
                             {
-                                TvmShowId = showsRec.TvmShowId, 
+                                TvmShowId = showsRec.TvmShowId,
                                 TvmUpdateDate = showsRec.UpdateDate,
                                 TvmUpdateEpoch = 0
                             };
@@ -734,7 +734,7 @@ internal static class Functions
         result.Message = $"Shows Added: {added} and Updated: {updated}";
         return result;
     }
-    
+
 }
 
 
@@ -826,7 +826,7 @@ foreach (var show in addTheseShows)
         TvmShowId = showId,
         UpdateDate = DateTime.Now.Date
     };
-    
+
     // Show
     var newShowRec = new Show() { };
     using var tvmApi = new WebApi(appInfo);
@@ -848,7 +848,7 @@ foreach (var show in addTheseShows)
         newShowRec.PremiereDate = DateOnly.Parse("01/01/1900");
     }
     newShowRec.UpdateDate = DateOnly.Parse("01/01/2200");
-    
+
     // TvmShowUpdates
     var tvmShowUpdateExist = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == showId) != null;
     var newTvmShowUpdatesRec = new TvmShowUpdate()
@@ -857,8 +857,8 @@ foreach (var show in addTheseShows)
         TvmUpdateEpoch = int.Parse(showContent["updated"]!.ToString()),
         TvmUpdateDate = newShowRec.PremiereDate
     };
-    
-    // TVMaze 
+
+    // TVMaze
     using var tvmApiUpd = new WebApi(appInfo);
     var updateResult = tvmApiUpd.PutShowToFollowed(showId);
     if (!updateResult.IsSuccessStatusCode)
@@ -866,7 +866,7 @@ foreach (var show in addTheseShows)
         log.Write($"Error Occured trying to update Tvmaze to followed for {showId} {newShowRec.ShowName} with error: {updateResult.StatusCode}");
         continue;
     }
-    
+
     // Do all DB Updates in 1 transaction
     using var transaction = db.Database.BeginTransaction();
     try
@@ -941,7 +941,7 @@ foreach (var episode in myEpisodeJArray)
     {
         log.Write($"Exception trying to get the AirDate for {epiId} of {showId} {url} {e.Message}");
     }
-    
+
     var plexDate = DateOnly.Parse(Common.ConvertEpochToDate(marked_at));
     var plexStatus = type switch
     {
@@ -975,7 +975,7 @@ foreach (var episode in myEpisodeJArray)
         db.SaveChanges();
         log.Write($"Adding Episode {episodeRec.TvmShowId} {episodeRec.SeasonEpisode} {episodeRec.TvmUrl}");
     }
-    
+
 }
 */
 
@@ -1042,6 +1042,3 @@ foreach (var show in showsToUnfollow)
 // log.Write(response.Success ? $"Show Created: {showController.ShowName} {response.Message} {response.InfoMessage}" : $"Show NOT created {showController.ShowName} {response.Message}, {response.InfoMessage} {response.ErrorMessage}");
 
 #endregion
-
-
-
