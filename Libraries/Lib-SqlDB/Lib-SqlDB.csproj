@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lib-Common\Lib-Common.csproj" />
+        <ProjectReference Include="..\Lib-Common\Lib-Common.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MySqlConnector" Version="2.3.1" />
+        <PackageReference Include="MySqlConnector" Version="2.3.1"/>
     </ItemGroup>
 
 </Project>

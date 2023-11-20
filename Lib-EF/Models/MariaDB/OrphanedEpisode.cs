@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace PlexMediaControl.Models.MariaDB;
 
-namespace PlexMediaControl.Models.MariaDB
+public class Orphanedepisode
 {
-    public partial class Orphanedepisode
-    {
-    }
 }

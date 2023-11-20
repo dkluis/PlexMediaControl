@@ -8,7 +8,6 @@ public class FollowedEntity : Followed, IDisposable
     {
         GC.SuppressFinalize(this);
     }
-
     public Response Add()
     {
         var resp = new Response();
@@ -16,7 +15,7 @@ public class FollowedEntity : Followed, IDisposable
         var validResp = Validate();
         if (!validResp.Success)
         {
-            resp.InfoMessage = "Validation Followed Record fields";
+            resp.InfoMessage  = "Validation Followed Record fields";
             resp.ErrorMessage = validResp.ErrorMessage;
             return resp;
         }
@@ -36,12 +35,11 @@ public class FollowedEntity : Followed, IDisposable
         resp.Success = true;
         return resp;
     }
-
     private Response Validate()
     {
-        var resp = new Response();
-        if (TvmShowId == 0) resp.ErrorMessage += "TvmShowId is not set";
-        if (string.IsNullOrEmpty(resp.ErrorMessage)) resp.Success = true;
+        var resp                                                  = new Response();
+        if (TvmShowId == 0) resp.ErrorMessage                     += "TvmShowId is not set";
+        if (string.IsNullOrEmpty(resp.ErrorMessage)) resp.Success =  true;
 
         return resp;
     }

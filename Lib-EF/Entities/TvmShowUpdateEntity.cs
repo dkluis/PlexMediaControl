@@ -8,10 +8,9 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
     {
         GC.SuppressFinalize(this);
     }
-
     public Response Add()
     {
-        var resp = new Response();
+        var resp   = new Response();
         var result = Valid();
         if (!result.Success) return resp;
 
@@ -29,22 +28,21 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         return resp;
     }
-
     public Response Get(int showId)
     {
         var resp = new Response();
 
         try
         {
-            using var db = new TvMaze();
-            var record = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
+            using var db     = new TvMaze();
+            var       record = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
             if (record == null)
             {
                 resp.ErrorMessage = $"Record for {TvmShowId} not found";
                 return resp;
             }
 
-            resp.Success = true;
+            resp.Success        = true;
             resp.ResponseObject = record;
         }
         catch (Exception e)
@@ -55,7 +53,6 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         return resp;
     }
-
     public Response Update(int showId, int epoch)
     {
         var resp = new Response();
@@ -63,14 +60,13 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
 
         return resp;
     }
-
     private Response Valid()
     {
-        var resp = new Response();
-        if (TvmShowId == 0) resp.ErrorMessage += "No TvmShowId Found, ";
-        if (TvmUpdateEpoch == 0) resp.InfoMessage += "TvmUpdateEpoch was zero, ";
-        if (TvmUpdateDate == new DateTime(0001, 01, 01, 0, 0, 0)) TvmUpdateDate = DateTime.Now;
-        if (resp.ErrorMessage == null) resp.Success = true;
+        var resp                                                                    = new Response();
+        if (TvmShowId         == 0) resp.ErrorMessage                               += "No TvmShowId Found, ";
+        if (TvmUpdateEpoch    == 0) resp.InfoMessage                                += "TvmUpdateEpoch was zero, ";
+        if (TvmUpdateDate     == new DateTime(0001, 01, 01, 0, 0, 0)) TvmUpdateDate =  DateTime.Now;
+        if (resp.ErrorMessage == null) resp.Success                                 =  true;
         return resp;
     }
 }

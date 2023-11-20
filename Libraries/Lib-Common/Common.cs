@@ -10,31 +10,30 @@ public static class Common
     public static string RemoveSpecialCharsInShowName(string showName)
     {
         showName = showName.Replace("...", "")
-            .Replace("..", "")
-            .Replace(".", " ")
-            .Replace(",", "")
-            .Replace("'", "")
-            .Replace("   ", " ")
-            .Replace("  ", " ")
-            .Replace("'", "")
-            .Replace("\"", "")
-            .Replace("/", "")
-            .Replace(":", "")
-            .Replace("?", "")
-            .Replace("|", "")
-            .Replace("&#039;", "")
-            .Replace("&amp;", "and")
-            .Replace("&", "and")
-            .Replace("°", "")
-            .Trim()
-            .ToLower();
+                           .Replace("..",     "")
+                           .Replace(".",      " ")
+                           .Replace(",",      "")
+                           .Replace("'",      "")
+                           .Replace("   ",    " ")
+                           .Replace("  ",     " ")
+                           .Replace("'",      "")
+                           .Replace("\"",     "")
+                           .Replace("/",      "")
+                           .Replace(":",      "")
+                           .Replace("?",      "")
+                           .Replace("|",      "")
+                           .Replace("&#039;", "")
+                           .Replace("&amp;",  "and")
+                           .Replace("&",      "and")
+                           .Replace("°",      "")
+                           .Trim()
+                           .ToLower();
         // Was put in for the What If...? situation: showName = showName.Substring(0, showName.Length);
         if (showName.Length <= 7) return showName;
         if (showName.ToLower()[..7] == "what if")
             showName = "What If";
         return showName;
     }
-
     public static string RemoveSuffixFromShowName(string showName)
     {
         var wrappedYear = Regex.Split(showName, "[(]2[0-2][0-3][0-9][)]", RegexOptions.IgnoreCase);
@@ -46,17 +45,14 @@ public static class Common
         var wrappedCountry = Regex.Split(showName, "[(][a-z][a-z][)]", RegexOptions.IgnoreCase);
         return wrappedCountry.Length == 2 ? wrappedCountry[0] : showName;
     }
-
     public static string BuildSeasonEpisodeString(int seasNum, int epiNum)
     {
         return "s" + seasNum.ToString().PadLeft(2, '0') + "e" + epiNum.ToString().PadLeft(2, '0');
     }
-
     public static string BuildSeasonOnly(int seasNum)
     {
         return "s" + seasNum.ToString().PadLeft(2, '0');
     }
-
     public static string ConvertEpochToDate(int epoch)
     {
         DateTime datetime = new(1970, 1, 1, 0, 0, 0);
@@ -64,43 +60,38 @@ public static class Common
         var date = datetime.ToString("yyyy-MM-dd");
         return date;
     }
-
     public static int ConvertDateToEpoch(string date)
     {
-        var ts = ConvertDateToDateTime(date) - new DateTime(1970, 1, 1, 0, 0, 0);
+        var ts    = ConvertDateToDateTime(date) - new DateTime(1970, 1, 1, 0, 0, 0);
         var epoch = Convert.ToInt32(ts.TotalSeconds);
         return epoch;
     }
-
     public static DateTime ConvertDateToDateTime(string date)
     {
-        var dItems = date.Split("-");
+        var      dItems   = date.Split("-");
         DateTime datetime = new();
         if (dItems.Length != 3) return datetime;
         datetime = new DateTime(int.Parse(dItems[0]), int.Parse(dItems[1]), int.Parse(dItems[2]), 0, 0, 0);
         return datetime;
     }
-
     public static string AddDaysToDate(string date, int days)
     {
         var calculatedDt = ConvertDateToDateTime(date);
         calculatedDt = calculatedDt.AddDays(days);
-        date = calculatedDt.ToString("yyyy-MM-DD");
+        date         = calculatedDt.ToString("yyyy-MM-DD");
         return date;
     }
-
     public static string SubtractDaysFromDate(string date, int days)
     {
         var calculatedDt = ConvertDateToDateTime(date);
         calculatedDt = calculatedDt.AddDays(-days);
-        date = calculatedDt.ToString("yyyy-MM-DD");
+        date         = calculatedDt.ToString("yyyy-MM-DD");
         return date;
     }
-
     public static string FindInArray(string fullPath, string find)
     {
         if (!File.Exists(fullPath)) return "";
-        var fileText = File.ReadAllText(fullPath);
+        var fileText     = File.ReadAllText(fullPath);
         var keyValuePair = ConvertStringToJArray(fileText);
         foreach (var rec in keyValuePair)
         {
@@ -110,18 +101,16 @@ public static class Common
 
         return "";
     }
-
     public static string FindInObject(string fullPath, string find)
     {
         if (!File.Exists(fullPath)) return "";
-        var fileText = File.ReadAllText(fullPath);
+        var fileText     = File.ReadAllText(fullPath);
         var keyValuePair = ConvertStringToJObject(fileText);
         foreach (var rec in keyValuePair)
             if (rec.Key == find)
                 return rec.Value!.ToString();
         return "";
     }
-
     public static JArray ConvertStringToJArray(string message)
     {
         if (message == "")
@@ -133,7 +122,6 @@ public static class Common
         var jA = JArray.Parse(message);
         return jA;
     }
-
     public static JObject ConvertStringToJObject(string message)
     {
         if (message == "")
@@ -145,18 +133,16 @@ public static class Common
         var jO = JObject.Parse(message);
         return jO;
     }
-
     public static class EnvInfo
     {
-        public static readonly string Drive;
-        public static readonly string MachineName;
-        public static readonly string Os;
-        public static readonly string UserName;
+        public static readonly string  Drive;
+        public static readonly string  MachineName;
+        public static readonly string  Os;
+        public static readonly string  UserName;
         public static readonly string? WorkingDrive;
-
         static EnvInfo()
         {
-            var os = Environment.OSVersion;
+            var os  = Environment.OSVersion;
             var pid = os.Platform;
             switch (pid)
             {
@@ -164,18 +150,18 @@ public static class Common
                 case PlatformID.Win32S:
                 case PlatformID.Win32Windows:
                 case PlatformID.WinCE:
-                    Os = "Windows";
+                    Os    = "Windows";
                     Drive = @"C:\";
                     break;
                 case PlatformID.Unix:
                 case PlatformID.MacOSX:
-                    Os = "Linux";
+                    Os    = "Linux";
                     Drive = @"/";
                     break;
                 case PlatformID.Xbox:
                 case PlatformID.Other:
                 default:
-                    Os = "Unknown";
+                    Os    = "Unknown";
                     Drive = "Unknown";
                     break;
             }
@@ -183,21 +169,19 @@ public static class Common
             MachineName = Environment.MachineName;
             var workingPath = Environment.CurrentDirectory;
             WorkingDrive = Path.GetPathRoot(workingPath);
-            UserName = Environment.UserName;
+            UserName     = Environment.UserName;
         }
     }
 }
-    
 public class FunctionResult
 {
-    public bool IsSuccess { get; set; }
-    public string Message { get; set; }
-    public string ErrorMessage { get; set; }
-
     public FunctionResult()
     {
-        IsSuccess = false;
-        Message = "";
+        IsSuccess    = false;
+        Message      = "";
         ErrorMessage = "";
     }
+    public bool   IsSuccess    { get; set; }
+    public string Message      { get; set; }
+    public string ErrorMessage { get; set; }
 }

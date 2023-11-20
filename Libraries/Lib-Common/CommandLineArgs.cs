@@ -5,9 +5,6 @@ namespace Common_Lib;
 
 public class CommandLineArgs : IDisposable
 {
-    public bool Success { get; set; }
-    private Dictionary<string, string> Args { get; set; } = new();
-    
     public CommandLineArgs(string executable = " ")
     {
         var cliArgs = Environment.GetCommandLineArgs();
@@ -23,12 +20,12 @@ public class CommandLineArgs : IDisposable
 
         Success = true;
     }
-
+    public  bool                       Success { get; set; }
+    private Dictionary<string, string> Args    { get; } = new();
     void IDisposable.Dispose()
     {
         GC.SuppressFinalize(this);
     }
-
     public string Get(string key)
     {
         try
@@ -40,7 +37,6 @@ public class CommandLineArgs : IDisposable
             return $"{key} not found {e.Message}";
         }
     }
-
     public int GetLogLevel()
     {
         try

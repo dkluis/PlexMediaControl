@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace PlexMediaControl.Models.MariaDB;
 
-namespace PlexMediaControl.Models.MariaDB
+public class LastShowEvaluated
 {
-    public partial class LastShowEvaluated
-    {
-        public int Id { get; set; }
-        public int ShowId { get; set; }
-    }
+    public int Id     { get; set; }
+    public int ShowId { get; set; }
 }

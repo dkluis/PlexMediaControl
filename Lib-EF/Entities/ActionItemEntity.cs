@@ -2,13 +2,12 @@ using PlexMediaControl.Models.MariaDB;
 
 namespace PlexMediaControl.Entities;
 
-public abstract class ActionItemEntity :ActionItem, IDisposable
+public abstract class ActionItemEntity : ActionItem, IDisposable
 {
     void IDisposable.Dispose()
     {
         GC.SuppressFinalize(this);
     }
-
     public static Response Record(ActionItem record)
     {
         var resp = new Response();
@@ -33,10 +32,9 @@ public abstract class ActionItemEntity :ActionItem, IDisposable
         resp.Success = true;
         return resp;
     }
-
     private static bool Validate(ActionItem check)
     {
-        var result = !string.IsNullOrEmpty(check.Message);
+        var result                                      = !string.IsNullOrEmpty(check.Message);
         if (string.IsNullOrEmpty(check.Program)) result = false;
 
         return result;

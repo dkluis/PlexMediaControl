@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lib-EF\Lib-EF.csproj" />
-        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj" />
-        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj" />
+        <ProjectReference Include="..\Lib-EF\Lib-EF.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj"/>
     </ItemGroup>
 
 </Project>

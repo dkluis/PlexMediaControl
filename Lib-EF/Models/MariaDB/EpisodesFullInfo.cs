@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace PlexMediaControl.Models.MariaDB;
 
-namespace PlexMediaControl.Models.MariaDB
+public class Episodesfullinfo
 {
-    public partial class Episodesfullinfo
-    {
-    }
 }
