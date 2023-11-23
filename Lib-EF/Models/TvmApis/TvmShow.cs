@@ -9,7 +9,7 @@ public class TvmShow
     public string   Status       { get; set; } = "";
     public int      RunTime      { get; set; }
     public string?  Language     { get; set; }
-    public int      Updated      { get; set; }
+    public long     Updated      { get; set; }
     public DateTime PremiereDate { get; set; } = new(1900, 01, 01);
     public DateTime EndDate      { get; set; } = new(2300, 01, 01);
     public string?  Network      { get; set; }

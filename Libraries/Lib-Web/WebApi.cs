@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common_Lib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Web_Lib.DTOs;
 
 namespace Web_Lib;
 
@@ -116,19 +117,10 @@ public class WebApi : IDisposable
             Console.WriteLine("########### Aborting from PerformWaitTvmApi IsTimedOut is True ###################");
             Environment.Exit(99);
         }
-        // else if (_httpResponse is null)
-        // {
-        //     _log.Write($"NULL --> Http Response Code is: NULL for API {_client.BaseAddress}{api}", "WebAPI Exec");
-        //     _httpResponse = new HttpResponseMessage();
-        //     Console.WriteLine("########### Aborting from PerformWaitTvmApi Response is Null ###################");
-        //     Environment.Exit(99);
-        // }
         else if (!_httpResponse.IsSuccessStatusCode)
         {
             _log.Write($"Status Code --> Http Response Code is: {_httpResponse.StatusCode} for API {_client.BaseAddress}{api}", "WebAPI Exec", 4);
             _httpResponse = new HttpResponseMessage();
-            //Console.WriteLine("########### Aborting from PerformWaitTvmApi isSuccessCode is False ###################");
-            //Environment.Exit(99);
         }
     }
     private async Task PerformTvmApiAsync(string api)
@@ -282,23 +274,24 @@ public class WebApi : IDisposable
 
         return _httpResponse;
     }
-    public JObject GetShow(int showId)
+    public ShowDto? GetShow(int showId)
     {
         SetTvmaze();
         var api = $"shows/{showId}";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUrl}{api}", "WebAPI GS Int", 4);
-
-        return ConvertHttpToJObject(_httpResponse);
+        var json = _httpResponse.Content.ReadAsStringAsync().Result;
+        return JsonConvert.DeserializeObject<ShowDto>(json.Replace("_links", "links").Replace("_embedded", "embedded"));
+        //return ConvertHttpToJObject(_httpResponse);
     }
-    public HttpResponseMessage GetEpisodesByShow(int showId)
+    public JArray GetEpisodesByShow(int showId)
     {
         SetTvmaze();
         var api = $"shows/{showId}/episodes";
         PerformWaitTvmApi(api);
         _log.Write($"API String = {TvmazeUrl}{api}", "WebAPI GEBS", 4);
 
-        return _httpResponse;
+        return ConvertHttpToJArray(_httpResponse);
     }
     public HttpResponseMessage GetAllMyEpisodes()
     {
@@ -359,19 +352,19 @@ public class WebApi : IDisposable
 
     #region Tvmaze Episode APIs
 
-    public HttpResponseMessage GetEpisode(int episodeid)
+    public EpiShowDto? GetEpisode(int episodeid)
     {
         SetTvmaze();
         var api = $"episodes/{episodeid}?embed=show";
         _log.Write($"API String = {TvmazeUrl}{api}", "WebAPI G Epi", 4);
         PerformWaitTvmApi(api);
-
-        return _httpResponse;
+        var json      = _httpResponse.Content.ReadAsStringAsync().Result;
+        return JsonConvert.DeserializeObject<EpiShowDto>(json.Replace("_links", "links").Replace("_embedded", "embedded"));
     }
-    public HttpResponseMessage GetEpisodeMarks(int episodeid)
+    public JObject GetEpisodeMarks(int episodeid)
     {
         SetTvmazeUser();
-        var api = $"episodes/{episodeid}";
+        var api = $"{TvmazeUserUrl}episodes/{episodeid}";
         _log.Write($"API String = {TvmazeUserUrl}{api}", "WebAPI GM Epi", 4);
         PerformWaitTvmApi(api);
 
@@ -379,7 +372,7 @@ public class WebApi : IDisposable
          * 0 = watched, 1 = acquired, 2 = skipped
          */
 
-        return _httpResponse;
+        return ConvertHttpToJObject(_httpResponse);
     }
     public HttpResponseMessage PutEpisodeToWatched(int episodeid, string watcheddate = "")
     {

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
 using Web_Lib;
+using Show = PlexMediaControl.Models.MariaDB.Show;
 
 namespace PlexMediaControl.Entities;
 
@@ -141,7 +142,7 @@ public class ShowEntity : Show, IDisposable
             {
                 using var tvmShowUpdateController = new TvmShowUpdateController();
                 tvmShowUpdateController.TvmShowId      = TvmShowId;
-                tvmShowUpdateController.TvmUpdateEpoch = TvmShowInfo.Updated;
+                tvmShowUpdateController.TvmUpdateEpoch = (int) TvmShowInfo.Updated;
                 tvmShowUpdateController.TvmUpdateDate  = DateTime.Now;
                 var resultAddTsu = tvmShowUpdateController.Add();
                 if (!resultAddTsu.Success)
@@ -229,45 +230,42 @@ public class ShowEntity : Show, IDisposable
     private Response GetTvmShowInfo(int showId)
     {
         var resp = new Response();
-
-        using WebApi tvmApi   = new(AppInfo);
-        var          showJson = tvmApi.GetShow(showId);
-
-        if (showJson.Count == 0)
+        using WebApi tvmApi  = new(AppInfo);
+        var          showDto = tvmApi.GetShow(showId);
+        if (showDto == null)
         {
             resp.ErrorMessage = $"ShowId {TvmShowId} not found";
             return resp;
         }
 
-        resp.ErrorMessage += showJson["id"]        == null ? "Id was null, " : "";
-        resp.ErrorMessage += showJson["url"]       == null ? "Url was null, " : "";
-        resp.ErrorMessage += showJson["name"]      == null ? "Name was null, " : "";
-        resp.InfoMessage  += showJson["updated"]   == null ? "Updated was null, " : "";
-        resp.InfoMessage  += showJson["premiered"] == null ? "Premiered was null, " : "";
-        resp.ErrorMessage += showJson["status"]    == null ? "Status was null, " : "";
+        resp.ErrorMessage += showDto.Url       == null ? "Url was null, " : "";
+        resp.ErrorMessage += showDto.Name      == null ? "Name was null, " : "";
+        resp.InfoMessage  += showDto.Updated   == null ? "Updated was null, " : "";
+        resp.InfoMessage  += showDto.Premiered == null ? "Premiered was null, " : "";
+        resp.ErrorMessage += showDto.Status    == null ? "Status was null, " : "";
         if (!string.IsNullOrEmpty(resp.ErrorMessage)) return resp;
 
-        TvmShowInfo!.Id      = int.Parse(showJson["id"]!.ToString());
-        TvmShowInfo.Url      = showJson["url"]!.ToString();
-        TvmShowInfo.Name     = showJson["name"]!.ToString();
-        TvmShowInfo.Language = !string.IsNullOrEmpty(showJson["language"]?.ToString()) ? showJson["language"]!.ToString() : string.Empty;
-        TvmShowInfo.Updated  = int.Parse(showJson["updated"]!.ToString());
-        TvmShowInfo.Status   = !string.IsNullOrEmpty(showJson["status"]?.ToString()) ? showJson["status"]!.ToString() : string.Empty;
-        TvmShowInfo.Type     = !string.IsNullOrEmpty(showJson["type"]?.ToString()) ? showJson["type"]!.ToString() : string.Empty;
+        TvmShowInfo.Id       = showDto.Id;
+        TvmShowInfo.Url      = showDto.Url!;
+        TvmShowInfo.Name     = showDto.Name!;
+        TvmShowInfo.Language = showDto.Language ?? string.Empty;
+        TvmShowInfo.Updated  = showDto.Updated  ?? 0;
+        TvmShowInfo.Status   = showDto.Status   ?? string.Empty;
+        TvmShowInfo.Type     = showDto.Type     ?? string.Empty;
 
-        if (!string.IsNullOrEmpty(showJson["network"]?.ToString()))
+        if (showDto.Network != null && showDto.Network.Country != null)
         {
-            if (!string.IsNullOrEmpty(showJson["network"]!["country"]?.ToString()))
-            {
-                TvmShowInfo.Country     = !string.IsNullOrEmpty(showJson["network"]!["country"]!["name"]?.ToString()) ? showJson["network"]!["country"]!["name"]!.ToString() : string.Empty;
-                TvmShowInfo.CountryCode = !string.IsNullOrEmpty(showJson["network"]!["country"]!["code"]?.ToString()) ? showJson["network"]!["country"]!["code"]!.ToString() : string.Empty;
-            }
-            TvmShowInfo.Network    = showJson["network"]!["name"]?.ToString();
-            TvmShowInfo.NetworkUrl = showJson["network"]!["officialSite"]?.ToString();
+            TvmShowInfo.Country     = showDto.Network.Country.Name ?? string.Empty;
+            TvmShowInfo.CountryCode = showDto.Network.Country.Code ?? string.Empty;
         }
-        TvmShowInfo.RunTime      = !string.IsNullOrEmpty(showJson["runtime"]?.ToString()) ? int.Parse(showJson["runtime"]!.ToString()) : 0;
-        TvmShowInfo.EndDate      = !string.IsNullOrEmpty(showJson["ended"]?.ToString()) ? DateTime.Parse(showJson["ended"]!.ToString()) : new DateTime(2300,         01, 01, 0, 0, 0);
-        TvmShowInfo.PremiereDate = !string.IsNullOrEmpty(showJson["premiered"]?.ToString()) ? DateTime.Parse(showJson["premiered"]!.ToString()) : new DateTime(1900, 01, 01, 0, 0, 0);
+        if (showDto.Network != null)
+        {
+            TvmShowInfo.Network    = showDto.Network.Name         ?? string.Empty;
+            TvmShowInfo.NetworkUrl = showDto.Network.OfficialSite ?? string.Empty;
+        }
+        TvmShowInfo.RunTime      = showDto.Runtime   ?? 0;
+        TvmShowInfo.EndDate      = showDto.Ended     ?? new DateTime(2300, 01, 01, 0, 0, 0);
+        TvmShowInfo.PremiereDate = showDto.Premiered ?? new DateTime(1900, 01, 01, 0, 0, 0);
 
         resp.Success = true;
         return resp;

@@ -93,13 +93,13 @@ public class EpisodeEntity : Episode, IDisposable
     {
         var resp               = new Response();
         var tvmApi             = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
-        var episodesByShowJson = tvmApi.ConvertHttpToJArray(tvmApi.GetEpisodesByShow(showId));
+        var episodesByShowJson = tvmApi.GetEpisodesByShow(showId);
         var allEpisodes        = new List<TvmEpisode>();
         foreach (var episode in episodesByShowJson)
         {
             var     epiId         = !string.IsNullOrEmpty(episode["id"]?.ToString()) ? int.Parse(episode["id"]!.ToString()) : 0;
             var     tvmApiMarks   = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
-            var     epiMarkedJson = tvmApiMarks.ConvertHttpToJObject(tvmApiMarks.GetEpisodeMarks(epiId));
+            var     epiMarkedJson = tvmApiMarks.GetEpisodeMarks(epiId);
             string? tvmType       = null;
             if (!string.IsNullOrEmpty(epiMarkedJson.ToString()) && epiMarkedJson.ToString() != "{}")
             {
