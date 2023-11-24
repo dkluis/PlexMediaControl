@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Common_Lib;
 using PlexMediaControl.Models.MariaDB;
 using PlexMediaControl.Models.TvmApis;
 using Web_Lib;
+using Web_Lib.DTOs;
 
 namespace PlexMediaControl.Entities;
 
@@ -91,41 +93,42 @@ public class EpisodeEntity : Episode, IDisposable
     }
     private static Response GetEpisodesOnTvMaze(int showId)
     {
-        var resp               = new Response();
-        var tvmApi             = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
-        var episodesByShowJson = tvmApi.GetEpisodesByShow(showId);
-        var allEpisodes        = new List<TvmEpisode>();
-        foreach (var episode in episodesByShowJson)
+        var           resp               = new Response();
+        var           tvmApi             = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
+        var episodesDTos = tvmApi.GetEpisodesByShow(showId);
+        if (episodesDTos == null)
         {
-            var     epiId         = !string.IsNullOrEmpty(episode["id"]?.ToString()) ? int.Parse(episode["id"]!.ToString()) : 0;
-            var     tvmApiMarks   = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
-            var     epiMarkedJson = tvmApiMarks.GetEpisodeMarks(epiId);
-            string? tvmType       = null;
-            if (!string.IsNullOrEmpty(epiMarkedJson.ToString()) && epiMarkedJson.ToString() != "{}")
+            resp.Success      = false;
+            resp.ErrorMessage = "No Episodes found";
+            return resp;
+        }
+        var           allEpisodes        = new List<TvmEpisode>();
+        foreach (var episode in episodesDTos)
+        {
+            var     epiId        = episode.Id;
+            var     tvmApiMarks  = new WebApi(new AppInfo("PlexMediaControl", "UpdateAllEpisodes"));
+            var     epiMarkedDto = tvmApiMarks.GetEpisodeMarks(epiId);
+            string? tvmType      = null;
+            if (epiMarkedDto == null)
             {
-                var epiType = !string.IsNullOrEmpty(epiMarkedJson["type"]?.ToString()) ? int.Parse(epiMarkedJson["type"]!.ToString()) : 99;
-                tvmType = ConvertEpisodeMarking(epiType);
-            }
-
-            var epiAirDate   = !string.IsNullOrEmpty(epiMarkedJson["airdate"]?.ToString()) ? DateTime.Parse(epiMarkedJson["airdate"]!.ToString()) : new DateTime(1900, 01, 01, 0, 0, 0);
-            var airtime      = !string.IsNullOrEmpty(epiMarkedJson["airtime"]?.ToString()) ? epiMarkedJson["airtime"]!.ToString() : "";
-            var airtimeSplit = airtime.Split(":");
-            if (airtimeSplit.Length > 1)
+                tvmType = "Unknown";
+            } else
             {
-                epiAirDate = epiAirDate.AddHours(int.Parse(airtimeSplit[0]));
-                epiAirDate = epiAirDate.AddMinutes(int.Parse(airtimeSplit[1]));
+                tvmType = ConvertEpisodeMarking(epiMarkedDto.Type ?? 99);
             }
+            var epiAirDate   = episode.Airdate ?? new DateTime(1900, 01, 01, 0, 0, 0);
+            var airtime      = episode.Airtime ?? "";
 
             var epi = new TvmEpisode
                       {
                           EpisodeId = epiId,
-                          Url       = string.IsNullOrEmpty(episode["url"]?.ToString()) ? episode["url"]!.ToString() : "",
-                          Name      = string.IsNullOrEmpty(episode["name"]?.ToString()) ? episode["name"]!.ToString() : "",
-                          Season    = string.IsNullOrEmpty(episode["season"]?.ToString()) ? int.Parse(episode["season"]!.ToString()) : 0,
-                          Number    = string.IsNullOrEmpty(episode["number"]?.ToString()) ? int.Parse(episode["number"]!.ToString()) : 0,
-                          Type      = string.IsNullOrEmpty(episode["type"]?.ToString()) ? episode["type"]!.ToString() : "",
+                          Url       = episode.Url ?? "",
+                          Name      = episode.Name ?? "",
+                          Season    = episode.Season ?? 0,
+                          Number    = episode.Number ?? 0,
+                          Type      = episode.Type ?? "",
                           AirDate   = epiAirDate,
-                          RunTime   = string.IsNullOrEmpty(episode["runtime"]?.ToString()) ? int.Parse(episode["runtime"]!.ToString()) : 0,
+                          RunTime   = episode.Runtime ?? 0,
                           Status    = tvmType,
                       };
             allEpisodes.Add(epi);

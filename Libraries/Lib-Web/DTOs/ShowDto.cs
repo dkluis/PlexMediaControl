@@ -35,7 +35,7 @@ public class ShowDto
     [JsonPropertyName("rating")]
     public Rating? Rating { get; set; }
     [JsonPropertyName("weight")]
-    public int Weight { get; set; }
+    public int? Weight { get; set; }
     [JsonPropertyName("network")]
     public Network? Network { get; set; }
     [JsonPropertyName("webChannel")]
@@ -49,7 +49,7 @@ public class ShowDto
     [JsonPropertyName("summary")]
     public string? Summary { get; set; }
     [JsonPropertyName("updated")]
-    public long? Updated { get; set; }
+    public int? Updated { get; set; }
     [JsonPropertyName("links")]
     public Links? Links { get; set; }
 }

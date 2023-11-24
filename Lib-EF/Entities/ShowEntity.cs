@@ -285,7 +285,6 @@ public class ShowEntity : Show, IDisposable
         AcquireShowName = show.AcquireShowName;
         PlexShowName    = show.PlexShowName;
         UpdateDate      = show.UpdateDate;
-        Episodes        = show.Episodes;
     }
     private Response Validate()
     {

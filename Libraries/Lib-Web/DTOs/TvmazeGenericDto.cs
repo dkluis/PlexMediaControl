@@ -28,7 +28,6 @@ public class TvmazeGenericDto
         [JsonPropertyName("href")]
         public string? Href { get; set; }
     }
-
     public class Schedule
     {
         [JsonPropertyName("time")]
