@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lib-EF\Lib-EF.csproj" />
-      <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj" />
-      <ProjectReference Include="..\Libraries\Lib-SqlDB\Lib-SqlDB.csproj" />
-      <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj" />
+        <ProjectReference Include="..\Lib-EF\Lib-EF.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-SqlDB\Lib-SqlDB.csproj"/>
+        <ProjectReference Include="..\Libraries\Lib-Web\Lib-Web.csproj"/>
     </ItemGroup>
 
 </Project>

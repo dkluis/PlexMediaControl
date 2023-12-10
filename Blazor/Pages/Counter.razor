@@ -10,12 +10,15 @@
 
 @code {
     private int currentCount;
+
     private void IncrementCount()
     {
         currentCount++;
     }
+
     private void Test()
     {
-        var apiInfo = new AppInfo("Blazor", "Counter", "dbProduction");
+        var apiInfo = new AppInfo("Blazor", "Counter", 3, "dbProduction");
     }
+
 }

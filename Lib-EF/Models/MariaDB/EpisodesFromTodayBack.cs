@@ -1,5 +1,8 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class Episodesfromtodayback
+namespace PlexMediaControl.Models.MariaDB;
+
+public partial class Episodesfromtodayback
 {
 }

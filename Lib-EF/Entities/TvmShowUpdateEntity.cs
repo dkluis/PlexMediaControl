@@ -8,10 +8,12 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
     {
         GC.SuppressFinalize(this);
     }
+
     public Response Add()
     {
         var resp   = new Response();
         var result = Valid();
+
         if (!result.Success) return resp;
 
         try
@@ -23,11 +25,13 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         catch (Exception e)
         {
             resp.ErrorMessage = $"Error writing DB {TvmShowId}, {e.Message} {e.InnerException}";
+
             return resp;
         }
 
         return resp;
     }
+
     public Response Get(int showId)
     {
         var resp = new Response();
@@ -36,9 +40,11 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         {
             using var db     = new TvMaze();
             var       record = db.TvmShowUpdates.SingleOrDefault(t => t.TvmShowId == TvmShowId);
+
             if (record == null)
             {
                 resp.ErrorMessage = $"Record for {TvmShowId} not found";
+
                 return resp;
             }
 
@@ -48,18 +54,20 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         catch (Exception e)
         {
             resp.ErrorMessage = $"Error Reading DB {TvmShowId}, {e.Message} {e.InnerException}";
+
             return resp;
         }
 
         return resp;
     }
+
     public Response Update(int showId, int epoch)
     {
         var resp = new Response();
 
-
         return resp;
     }
+
     private Response Valid()
     {
         var resp                                                                    = new Response();
@@ -67,6 +75,7 @@ public class TvmShowUpdateController : TvmShowUpdate, IDisposable
         if (TvmUpdateEpoch    == 0) resp.InfoMessage                                += "TvmUpdateEpoch was zero, ";
         if (TvmUpdateDate     == new DateTime(0001, 01, 01, 0, 0, 0)) TvmUpdateDate =  DateTime.Now;
         if (resp.ErrorMessage == null) resp.Success                                 =  true;
+
         return resp;
     }
 }

@@ -8,12 +8,11 @@ public class AppInfo
     private readonly string   _drive;
     private readonly string   _fullPath;
     private readonly string[] _mediaExtensions;
+
     public AppInfo(string application, string program, int logLevel = 999, string dbConnection = "DbProduction")
     {
         _drive = Common.EnvInfo.Drive;
-        var homeDir = Common.EnvInfo.Os == "Windows"
-                          ? Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%")
-                          : Environment.GetEnvironmentVariable("HOME");
+        var homeDir = Common.EnvInfo.Os == "Windows" ? Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%") : Environment.GetEnvironmentVariable("HOME");
 
         if (homeDir is not null)
         {
@@ -27,6 +26,7 @@ public class AppInfo
         var configFileName = application + ".cnf";
         ConfigPath = homeDir;
         var configFullPath = Path.Combine(homeDir, configFileName);
+
         if (!File.Exists(configFullPath))
         {
             Console.WriteLine($"Log File Does not Exist {configFullPath}");
@@ -42,11 +42,13 @@ public class AppInfo
         TvMazeToken      = Common.FindInArray(configFullPath, "TvmazeToken");
         RarbgToken       = Common.FindInArray(configFullPath, "RarbgToken");
         _mediaExtensions = Common.FindInArray(configFullPath, "MediaExtensions").Split(", ");
+
         ActiveDbConn = dbConnection switch
                        {
                            "DbProduction" => Common.FindInArray(configFullPath, "DbProduction"), "DbTesting" => Common.FindInArray(configFullPath, "DbTesting"), "DbAlternate" => Common.FindInArray(configFullPath, "DbAlternate"), _ => "",
                        };
     }
+
     public string?         ConfigPath   { get; }
     public string          RarbgToken   { get; }
     public string          TvMazeToken  { get; }

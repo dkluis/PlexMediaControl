@@ -1,10 +1,17 @@
-﻿namespace PlexMediaControl.Models.MariaDB;
+﻿using System;
+using System.Collections.Generic;
 
-public class ShowRssFeed
+namespace PlexMediaControl.Models.MariaDB;
+
+public partial class ShowRssFeed
 {
-    public int      Id         { get; set; }
-    public string   ShowName   { get; set; } = null!;
-    public bool?    Processed  { get; set; }
-    public string   Url        { get; set; } = null!;
+    public int Id { get; set; }
+
+    public string ShowName { get; set; } = null!;
+
+    public bool? Processed { get; set; }
+
+    public string Url { get; set; } = null!;
+
     public DateTime UpdateDate { get; set; }
 }

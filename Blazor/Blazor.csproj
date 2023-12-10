@@ -18,4 +18,8 @@
         </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj"/>
+    </ItemGroup>
+
 </Project>

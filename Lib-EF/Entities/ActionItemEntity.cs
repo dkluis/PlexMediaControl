@@ -8,12 +8,15 @@ public abstract class ActionItemEntity : ActionItem, IDisposable
     {
         GC.SuppressFinalize(this);
     }
+
     public static Response Record(ActionItem record)
     {
         var resp = new Response();
+
         if (!Validate(record))
         {
             resp.ErrorMessage = "Message or Program or both were blank";
+
             return resp;
         }
 
@@ -26,12 +29,15 @@ public abstract class ActionItemEntity : ActionItem, IDisposable
         catch (Exception e)
         {
             resp.ErrorMessage = $"Error Occured {e.Message} {e.InnerException}";
+
             return resp;
         }
 
         resp.Success = true;
+
         return resp;
     }
+
     private static bool Validate(ActionItem check)
     {
         var result                                      = !string.IsNullOrEmpty(check.Message);

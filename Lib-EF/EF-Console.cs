@@ -1,4 +1,5 @@
 ﻿using Common_Lib;
+
 using PlexMediaControl.Models.MariaDB;
 
 var appInfo = new AppInfo("PlexMediaControl", "EF-Console");
@@ -59,6 +60,7 @@ log.Write($"Tvm Statuses {recCount} records found");
 
 log.Write($"Db has {totalRecords} records");
 log.Stop();
+
 //
 // PM>>> Scaffold-DbContext "Server=tcp:192.168.142.152,1433;Database=TvMazeDb;User ID=sa;Password=Sandy3942" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/DB -f
 //

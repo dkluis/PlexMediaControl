@@ -7,6 +7,14 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>x86</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Lib-EF\Lib-EF.csproj"/>
         <ProjectReference Include="..\Libraries\Lib-Common\Lib-Common.csproj"/>
