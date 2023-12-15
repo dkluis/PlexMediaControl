@@ -60,8 +60,10 @@ public partial class TvMaze : DbContext
     public virtual DbSet<TvmStatus> TvmStatuses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https: //go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=ca-server.local;port=3306;database=TvMazeProd;uid=dick;pwd=Sandy3942", Microsoft.EntityFrameworkCore.ServerVersion.Parse("11.2.2-mariadb"));
+{
+    const string connectionString = "server=ubuntumediahandler.local;port=3306;database=MediaHandlerDb;uid=dick;pwd=Sandy3942";
+    optionsBuilder.UseMySql(connectionString, Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.6.16-mariadb"));
+}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
