@@ -45,7 +45,10 @@ public class AppInfo
 
         ActiveDbConn = dbConnection switch
                        {
-                           "DbProduction" => Common.FindInArray(configFullPath, "DbProduction"), "DbTesting" => Common.FindInArray(configFullPath, "DbTesting"), "DbAlternate" => Common.FindInArray(configFullPath, "DbAlternate"), _ => "",
+                           "DbProduction" => Common.FindInArray(configFullPath, "DbProduction"),
+                           "DbTesting" => Common.FindInArray(configFullPath,    "DbTesting"),
+                           "DbAlternate" => Common.FindInArray(configFullPath,  "DbAlternate"),
+                           _ => "",
                        };
     }
 
